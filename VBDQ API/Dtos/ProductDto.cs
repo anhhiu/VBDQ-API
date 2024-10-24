@@ -6,12 +6,12 @@ namespace VBDQ_API.Dtos
     public class ProductDto
     {
         public int ProductId { get; set; }
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
         public int CategoryId { get; set; }
-        public string Weight { get; set; }
+        public string? Weight { get; set; }
 
         public int SupplierId { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public int Quantity { get; set; }
 
@@ -21,9 +21,9 @@ namespace VBDQ_API.Dtos
 
         public bool Available { get; set; }
         [JsonIgnore]
-        public virtual CategoryDto CategoryDto { get; set; }
+        public CategoryDto? CategoryDto { get; set; }
         [JsonIgnore]
-        public virtual SupplierDto SupplierDto { get; set; }
+        public SupplierDto? SupplierDto { get; set; }
 
         public IEnumerable<TransactionDetailDto> TransactionDetailDtos { get; set; } = Enumerable.Empty<TransactionDetailDto>();
     }

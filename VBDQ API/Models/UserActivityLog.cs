@@ -7,10 +7,10 @@ namespace VBDQ_API.Models
     {
         [Key]
         public int LogId { get; set; }
-        public string UserId { get; set; }
-        public string Action { get; set; }
+        public string? UserId { get; set; }
+        public string? Action { get; set; }
         public DateTime ActionTime { get; set; }
         [JsonIgnore]
-        public User User { get; set; }
+        public User? User { get; set; }
     }
 }

@@ -13,9 +13,9 @@ namespace VBDQ_API.Models
         public double UnitPrice { get; set; }
         public double TotalPrice { get; set; }
         [JsonIgnore]
-        public Product Product { get; set; }
+        public Product? Product { get; set; }
         [JsonIgnore]
-        public Transaction Transaction { get; set; }
+        public Transaction? Transaction { get; set; }
 
     }
 }

@@ -8,17 +8,18 @@ namespace VBDQ_API.Models
         [Key]
         public int UserId { get; set; }
         [Required(ErrorMessage ="phai nhap")]
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
         [EmailAddress]
-        public string Email { get; set; } 
+        public string? Email { get; set; } 
         [Required(ErrorMessage = "phai nhap")]
-        public string Password { get; set; }
-        public string FullName { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
+        public string? Password { get; set; }
+        public string? FullName { get; set; }
+        [Phone]
+        public string? Phone { get; set; }
         // xac thuc phan quyen
-        public virtual ICollection<UserRole> UserRoles { get; set; }
+        public virtual ICollection<UserRole>? UserRoles { get; set; }
         // ghi log  hoat dong nguoi dung
-        public virtual ICollection<UserActivityLog> UserActivityLogs { get; set; }
+        public virtual ICollection<UserActivityLog>? UserActivityLogs { get; set; }
         
     }
 

@@ -37,10 +37,10 @@ namespace VBDQ_API.Services
         public async Task<Mess> DeleteCategory(int id)
         {
            var category = await context.Categories.FindAsync(id);   
-           var categorydto =  mapper.Map<Category>(category);
-            if (id == categorydto.CategoryId)
+          
+            if (category != null)
             {
-                context.Categories.Remove(categorydto);
+                context.Categories.Remove(category);
                 await context.SaveChangesAsync();
                 return new Mess {Error =null, Status = "xoa thanh cong"};
             }
@@ -49,15 +49,24 @@ namespace VBDQ_API.Services
 
         public async Task<(IEnumerable<CategoryDto>, Mess)> GetAllCategory()
         {
-            var category = await context.Categories.ToListAsync();
-            var categorydto = mapper.Map<IEnumerable<CategoryDto>>(category);
+            try
+            {
+                var categories = await context.Categories.OrderByDescending(c => c.CategoryId).Include(c => c.Products).ToListAsync();
+                var categoryDtos = mapper.Map<IEnumerable<CategoryDto>>(categories);
 
-            return  (categorydto, new Mess {Error =null, Status ="sucess" });
+                return (categoryDtos, new Mess { Error = null, Status = "success" });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (nếu cần thiết)
+                return (null, new Mess { Error = ex.Message, Status = "failed" });
+            }
+
         }
 
         public async Task<(CategoryDto, Mess)> GetCategoryById(int id )
         {
-            var category = await context.Categories.FindAsync(id);
+            var category = await context.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.CategoryId == id);
             if (category == null)
             {
                 return (null, new Mess { Error = "loi roi", Status = "loi" });
@@ -65,8 +74,6 @@ namespace VBDQ_API.Services
             var categorydto = mapper.Map<CategoryDto>(category);
             
                 return (categorydto, new Mess { Error = null, Status = "sucess" });
-            
-           
         }
 
         public async Task<(CategoryDto, Mess)> UpdatedCategory(CategoryDto categoryDto, int id)

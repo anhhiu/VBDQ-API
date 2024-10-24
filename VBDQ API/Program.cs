@@ -16,6 +16,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ICategorySevice, CategoryService>(); 
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+//builder.Services.AddScoped<ITransactionDetailService, TransactionDetailService>();
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 

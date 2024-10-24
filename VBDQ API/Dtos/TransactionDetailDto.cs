@@ -13,8 +13,8 @@ namespace VBDQ_API.Dtos
         public double UnitPrice { get; set; }
         public double TotalPrice { get; set; }
         [JsonIgnore]
-        public ProductDto ProductDto { get; set; }
+        public ProductDto? ProductDto { get; set; }
         [JsonIgnore]
-        public TransactionDto TransactionDto { get; set; }
+        public TransactionDto? TransactionDto { get; set; }
     }
 }

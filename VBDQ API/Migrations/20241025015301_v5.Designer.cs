@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VBDQ_API.Data;
 
@@ -11,9 +12,11 @@ using VBDQ_API.Data;
 namespace VBDQ_API.Migrations
 {
     [DbContext(typeof(MyDbcontext))]
-    partial class MyDbcontextModelSnapshot : ModelSnapshot
+    [Migration("20241025015301_v5")]
+    partial class v5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -198,9 +201,6 @@ namespace VBDQ_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionDetailId"));
 
-                    b.Property<double>("Discount")
-                        .HasColumnType("float");
-
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
@@ -222,7 +222,7 @@ namespace VBDQ_API.Migrations
 
                     b.HasIndex("TransactionId");
 
-                    b.ToTable("TransactionDetails");
+                    b.ToTable("TransactionDetail");
                 });
 
             modelBuilder.Entity("VBDQ_API.Models.User", b =>

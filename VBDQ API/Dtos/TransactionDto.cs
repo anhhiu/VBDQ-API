@@ -8,19 +8,14 @@ namespace VBDQ_API.Dtos
     {
         public int TransactionId { get; set; }
         public int CustomerId { get; set; }
-        public DateTime TransactionDate { get; set; } = DateTime.UtcNow;
+        public DateTime TransactionDate { get; set; }
         public double TotalAmount { get; set; }
         public string? PaymentMethod { get; set; }
-        public int Quantity { get; set; }
         [Phone]
         public string? PhoneNumber { get; set; }
 
-        public string? Address { get; set; }
-
-        public double Discount { get; set; }
-
-        public string? TransactionStatus { get; set; } = "Đã mua";
-        public string? PaymentStatus { get; set; } = "Đã Thanh Toán";
+        public string? TransactionStatus { get; set; }
+        public string? PaymentStatus { get; set; }
         [JsonIgnore]
         public Customer? Customer { get; set; }
 
@@ -32,13 +27,11 @@ namespace VBDQ_API.Dtos
         public int CustomerId { get; set; }
         public double TotalAmount { get; set; }
         public string? PaymentMethod { get; set; }
-        public int Quantity { get; set; }
         [Phone]
         public string? PhoneNumber { get; set; }
 
         public string? Address { get; set; }
-
-        public double Discount { get; set; }
+        public virtual ICollection<TransactionDetail> TransactionDetails { get; set; } = new List<TransactionDetail>();
     }
 
 }

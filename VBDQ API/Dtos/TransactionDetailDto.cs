@@ -11,6 +11,7 @@ namespace VBDQ_API.Dtos
         public int ProductId { get; set; }
         public int Quantity { get; set; }
         public double UnitPrice { get; set; }
+        public double Discount { get; set; }
         public double TotalPrice { get; set; }
         [JsonIgnore]
         public ProductDto? ProductDto { get; set; }

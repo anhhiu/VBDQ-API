@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using VBDQ_API.Models;
 
 namespace VBDQ_API.Data
 {
-    public class MyDbcontext : DbContext
+    public class MyDbcontext : IdentityDbContext<ApplicationUser>
     {
         public MyDbcontext(DbContextOptions options) : base(options)
         {
@@ -15,27 +16,13 @@ namespace VBDQ_API.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<TransactionDetail> TransactionDetails { get; set; }
-        public DbSet<User> Users {  get; set; }
-        public DbSet<Role> Roles { get; set; }
-        public DbSet<UserRole> UserRoles { get; set; }
-        public DbSet<UserActivityLog> UserActivityLogs { get; set; }
+       
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<UserRole>()
-                .HasKey(ur => new { ur.UserId, ur.RoleId });
-
-            modelBuilder.Entity<UserRole>()
-                .HasOne(u => u.User)
-                .WithMany(u => u.UserRoles)
-                .HasForeignKey(u => u.UserId);
-
-            modelBuilder.Entity<UserRole>()
-                .HasOne(r => r.Role)
-                .WithMany(r => r.UserRoles)
-                .HasForeignKey(r => r.RoleId);
+           
 
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)

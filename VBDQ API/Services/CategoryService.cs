@@ -51,7 +51,11 @@ namespace VBDQ_API.Services
         {
             try
             {
-                var categories = await context.Categories.OrderByDescending(c => c.CategoryId).Include(c => c.Products).ToListAsync();
+                var categories = await context.Categories
+                    .OrderByDescending(c => c.CategoryId)
+                    .Include(c => c.Products)
+                    .ThenInclude(c => c.TransactionDetails)
+                    .ToListAsync();
                 var categoryDtos = mapper.Map<IEnumerable<CategoryDto>>(categories);
 
                 return (categoryDtos, new Mess { Error = null, Status = "success" });
@@ -66,7 +70,8 @@ namespace VBDQ_API.Services
 
         public async Task<(CategoryDto, Mess)> GetCategoryById(int id )
         {
-            var category = await context.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.CategoryId == id);
+            var category = await context.Categories.Include(c => c.Products)
+                .ThenInclude(c => c.TransactionDetails).FirstOrDefaultAsync(c => c.CategoryId == id);
             if (category == null)
             {
                 return (null, new Mess { Error = "loi roi", Status = "loi" });

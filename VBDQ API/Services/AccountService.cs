@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -27,6 +28,19 @@ namespace VBDQ_API.Services
             this.roleManager = roleManager;
         }
 
+        public async Task<(IEnumerable<IdentityUser>, Mess)> GetUsers()
+        {
+            var users = await userManager.Users.ToListAsync();
+
+            if (users == null)
+            {
+                return (null, new Mess { Error = "loi roi", Status = "khong co nguoi dung nao" });
+            }
+            else
+            {
+                return (users, new Mess { Error = null, Status = "SUCESS" });
+            }
+        }
 
         public async Task<(string, Mess)> Login(LoginDto model)
         {

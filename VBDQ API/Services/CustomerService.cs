@@ -65,7 +65,11 @@ namespace VBDQ_API.Services
         {
             try
             {
-               var customer = await context.Customers.OrderByDescending(c => c.CustomerId).ToListAsync();
+               var customer = await context.Customers
+                    .Include(c => c.Transactions)
+                    .ThenInclude(C => C.TransactionDetails)
+                    .OrderByDescending(c => c.CustomerId)
+                    .ToListAsync();
 
                 var customerClient = mapper.Map<IEnumerable<CustomerDto>>(customer);
 
@@ -79,7 +83,10 @@ namespace VBDQ_API.Services
 
         public async Task<(CustomerDto, Mess)> GetCustomerById(int id)
         {
-            var customer = await context.Customers.FindAsync(id);
+            var customer = await context.Customers
+                .Include(c => c.Transactions)
+                .ThenInclude (C => C.TransactionDetails)
+                .FirstOrDefaultAsync(c => c.CustomerId == id);
 
             if (customer == null)
                 return (null, new Mess { Error = "loi roi", Status = $"Không có Id  = {id} dau cụ" });

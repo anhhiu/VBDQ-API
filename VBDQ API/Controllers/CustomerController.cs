@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VBDQ_API.Dtos;
+using VBDQ_API.Orther;
 using VBDQ_API.Services;
 
 namespace VBDQ_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerService service;
@@ -17,7 +20,6 @@ namespace VBDQ_API.Controllers
         }
 
         [HttpGet]
-
         public async Task<IActionResult> GetAllCustomer()
         {
             var (customer,mes) = await service.GetAlLCustomer();
@@ -30,7 +32,8 @@ namespace VBDQ_API.Controllers
         }
 
         [HttpPost]
-        
+       
+        [Authorize(Roles = AppRole.Staff)]
         public async Task<IActionResult> AddCustomer(CustomerPP customerDto)
         {
             var (customer, mes) = await service.AddCustomer(customerDto);
@@ -41,6 +44,9 @@ namespace VBDQ_API.Controllers
             return BadRequest(mes.Status);
         }
         [HttpPut("{id}")]
+        [Authorize(Roles = AppRole.Customer)]
+        [Authorize(Roles = AppRole.Admin)]
+        [Authorize(Roles = AppRole.Staff)]
         public async Task<IActionResult> UpdateCustomer(CustomerPP customerDto, int id)
         {
             var (customer, mes) = await service.UpdateCustomer(customerDto, id);
@@ -52,7 +58,9 @@ namespace VBDQ_API.Controllers
         }
 
         [HttpDelete("{id}")]
-
+        [Authorize(Roles = AppRole.Customer)]
+        [Authorize(Roles = AppRole.Admin)]
+        [Authorize(Roles = AppRole.Staff)]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
             var mes = await service.DeleteCustomer(id);
@@ -63,7 +71,6 @@ namespace VBDQ_API.Controllers
         }
 
         [HttpGet("{id}")]
-
         public async Task<IActionResult> GetCustomerById(int id)
         {
             var (customer, mes) = await service.GetCustomerById(id);

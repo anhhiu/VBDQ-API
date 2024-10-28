@@ -63,7 +63,10 @@ namespace VBDQ_API.Services
 
         public async Task<(IEnumerable<ProductDto>, Mess)> GetAllProduct()
         {
-            var product = await context.Products.OrderByDescending(p => p.ProductId).ToListAsync();
+            var product = await context.Products.
+                Include(p => p.TransactionDetails)
+                .OrderByDescending(p => p.ProductId)
+                .ToListAsync();
 
             var productdto = mapper.Map<IEnumerable<ProductDto>>(product);
 
@@ -74,7 +77,9 @@ namespace VBDQ_API.Services
         {
             try
             {
-                var product = await context.Products.FindAsync(id);
+                var product = await context.Products
+                    .Include(p => p.TransactionDetails)
+                    .FirstOrDefaultAsync(p => p.ProductId == id);
 
                 if (product == null)
                     return (null, new Mess { Error = "loi roi", Status = $"Không tìm thấy sản phẩm có Id = {id}" });

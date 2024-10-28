@@ -47,6 +47,23 @@ namespace VBDQ_API.Controllers
                 return StatusCode(500, mes.Status);
             }
         }
+
+        [HttpGet]
+
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var (users, mes) = await service.GetUsers();
+
+            if(mes.Error == null)
+            {
+                return Ok(users);
+            }
+            else
+            {
+                return StatusCode(500, mes.Status);
+            }
+
+        }
     }
 }
 

@@ -8,5 +8,7 @@ namespace VBDQ_API.Services
     {
         public Task<(IdentityResult, Mess)> Register(RegisterDto model);
         public Task<(string, Mess)> Login(LoginDto model);
+
+        public Task<(IEnumerable<IdentityUser>, Mess)> GetUsers();
     }
 }

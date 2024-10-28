@@ -22,8 +22,6 @@ namespace VBDQ_API.Data
         {
             base.OnModelCreating(modelBuilder);
 
-           
-
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)
                 .WithMany(p => p.Products)

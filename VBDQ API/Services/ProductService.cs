@@ -73,6 +73,115 @@ namespace VBDQ_API.Services
             return (productdto, new Mess { Error = null, Status = "sucess" });
         }
 
+        public async Task<(List<Product>, Mess)> GetAllProduct(int skip, int take)
+        {
+            var product = await context.Products.Include(x  => x.TransactionDetails)
+                .OrderBy(x => x.ProductId)
+                 .Skip((skip-1)*take)
+                 .Take(take)
+                 .ToListAsync();
+
+            if (product.Count == 0)
+            {
+                return (null!, new Mess { Error = string.Empty, Status = "khong co kk" });
+            }
+            return (product, new Mess { Error = null!, Status ="sucess"});
+                
+        }
+
+        public async Task<(List<Product>, Mess)> GetALlProductNamePage(string name, int skip, int take)
+        {
+            var product = await context.Products.Include(x => x.TransactionDetails)
+                                                .Where(x => x.ProductName.ToLower().Contains(name.ToLower()))
+                                                .OrderBy(x => x.ProductId)
+                                                .Skip((skip - 1)*take)
+                                                .Take(take)             
+                                                .ToListAsync();
+
+            if (product.Count == 0)
+            {
+                return (null!, new Mess { Error = "khong co gi", Status = "khong co gi ca" });
+            }
+            else
+            {
+                return (product, new Mess {Error = null, Status = "sucess" });
+            }
+                                                
+        }
+
+        public async Task<(IEnumerable<CategoryListProduct>, Mess)> GetCategoriesNameList()
+        {
+            var category = await context.Categories.GroupJoin(context.Products,
+                cate => cate.CategoryId, prod => prod.CategoryId
+                , (cate, prod) => new
+                {
+                    Cate = cate.Name,
+                    Prod = prod.ToList(),
+                })
+                .Select(x => new CategoryListProduct
+                {
+                    CateName = x.Cate,
+                    products = x.Prod.ToList(),
+                })
+                .ToListAsync();
+
+            if (category.Count == 0)
+            {
+                return (null, new Mess { Error = "khong co", Status = "khong co dau haha" });
+            }
+            else
+            {
+                return (category, new Mess { Error = null, Status = "sucess" });
+            }
+
+        }
+
+        public async Task<(IEnumerable<CateProDto>, Mess)> GetCatePro()
+        {
+            var catepro = await context.Products
+                                .Join(context.Categories,
+                                product => product.CategoryId,
+                                categories => categories.CategoryId,
+                                (product, categories) => new
+                                    {
+                                        CategoryName = categories.Name,
+                                        ProductName = product.ProductName,
+                                        Quantity = product.Quantity,
+                                        Price = product.ProductPrice,
+                                    })
+                                .Select(x => new CateProDto
+                                    {
+                                        NameCate = x.CategoryName,
+                                        NamePro = x.ProductName,
+                                        Quantity = x.Quantity,
+                                        Price = x.Price,
+                                    })
+                                .ToListAsync();
+            if(catepro.Count == 0)
+            {
+                return (null, new Mess { Error = "khong co", Status = "khong co dau haha" });
+            }
+            else
+            {
+                return (catepro, new Mess { Error = null, Status = "sucess" });
+            }
+        }
+
+        public async Task<(Product, Mess)> GetProByName(string name)
+        {
+            var product = await context.Products.
+                FirstOrDefaultAsync(p => p.ProductName.ToLower().Contains(name.ToLower()));
+
+            if (product == null)
+            {
+                return (null!, new Mess { Error = string.Empty, Status = $"khong co san pham nao co name = {name}" });
+            }
+            else
+            {
+                return (product, new Mess {Error = null! , Status = "sucess" });
+            }
+        }
+
         public async Task<(ProductDto, Mess)> GetProductById(int id)
         {
             try
@@ -90,6 +199,35 @@ namespace VBDQ_API.Services
             catch (Exception ex)
             {
                 return (null, new Mess { Error = "loi roi", Status = ex.Message });
+            }
+        }
+
+        public async Task<(List<Product>, Mess)> GetProductByName(string name)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(name))
+                {
+                    return (null, new Mess {Error = "loi roi", Status = "muon tim thi phai nhap chu?" });
+                }
+                var product = await context.Products
+                    .Where(p => p.ProductName.ToLower().Contains(name.ToLower()))
+                    .ToListAsync();
+
+                if (product.Count == 0)
+                {
+                    return (null, new Mess { Error = "khong thays", Status = "khong tim thay" });
+                }
+                else
+                {
+                   // var productSearch = mapper.Map<ProductDto>(product);
+                    return (product, new Mess {Error =null, Status = "sucess" });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return (null, new Mess {Error = "loi roi", Status = ex.Message });
             }
         }
 
@@ -116,5 +254,7 @@ namespace VBDQ_API.Services
             }
 
         }
+
+        
     }
 }

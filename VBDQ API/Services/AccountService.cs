@@ -28,6 +28,20 @@ namespace VBDQ_API.Services
             this.roleManager = roleManager;
         }
 
+        public async Task<(IEnumerable<IdentityRole>, Mess)> GetRoler()
+        {
+            var role =await roleManager.Roles.ToListAsync();
+
+            if (role == null)
+            {
+                return (null, new Mess { Error = "khong co gi", Status = "cha co cai deo gi" });
+            }
+            else
+            {
+                return (role, new Mess { Error = null, Status = "ok" });
+            }
+        }
+
         public async Task<(IEnumerable<IdentityUser>, Mess)> GetUsers()
         {
             var users = await userManager.Users.ToListAsync();

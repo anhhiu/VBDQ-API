@@ -48,7 +48,7 @@ namespace VBDQ_API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("users")]
 
         public async Task<IActionResult> GetAllUsers()
         {
@@ -63,6 +63,20 @@ namespace VBDQ_API.Controllers
                 return StatusCode(500, mes.Status);
             }
 
+        }
+        [HttpGet("roles")]
+        public async Task<IActionResult> GetRoles()
+        {
+            var (roles, mes) = await service.GetRoler();
+
+            if (mes.Error == null)
+            {
+                return Ok(roles);
+            }
+            else
+            {
+                return StatusCode(500, mes.Status);
+            }
         }
     }
 }

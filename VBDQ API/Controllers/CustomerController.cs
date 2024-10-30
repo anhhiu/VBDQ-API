@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using VBDQ_API.Data;
 using VBDQ_API.Dtos;
 using VBDQ_API.Orther;
 using VBDQ_API.Services;
@@ -13,10 +15,12 @@ namespace VBDQ_API.Controllers
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerService service;
+        private readonly MyDbcontext context;
 
-        public CustomerController(ICustomerService service)
+        public CustomerController(ICustomerService service, MyDbcontext context)
         {
             this.service = service;
+            this.context = context;
         }
 
         [HttpGet]
@@ -79,5 +83,27 @@ namespace VBDQ_API.Controllers
                 return Ok(customer);
             return BadRequest(mes.Status);
         }
+
+        [HttpGet("leftjoin")]
+
+        public async Task<IActionResult> GetLiftJoin()
+        {
+            var lj = await context.Customers
+                .GroupJoin(context.Transactions, cus => cus.CustomerId, trans => trans.CustomerId, (cus, trans) => new
+                {
+                    customerName = cus.CustomerName,
+                    Transaction = trans.DefaultIfEmpty(),
+                })
+                .SelectMany(x => x.Transaction.Select(trans => new
+                {
+                    Customer = x.customerName,
+                    Phone = trans.PhoneNumber,
+                    Address = trans.Address,
+                    PayMent = trans != null ? trans.PaymentMethod : "quyen me mat chua dien" ,
+                })).ToListAsync();
+
+            return Ok(lj);
+        }
+
     }
 }

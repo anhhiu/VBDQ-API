@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿
+using System.Text.Json.Serialization;
 using VBDQ_API.Models;
 
 namespace VBDQ_API.Dtos
@@ -27,4 +28,20 @@ namespace VBDQ_API.Dtos
 
         public IEnumerable<TransactionDetailDto> TransactionDetailDtos { get; set; } = Enumerable.Empty<TransactionDetailDto>();
     }
+
+    public class ProductCS
+    {
+        public int Id { get; set; }
+        public string? ProductName { get; set; }
+        public string? CategoryName { get; set; }
+        public string? SupplierName { get; set; }
+
+        public string? ContactName { get; set; }
+        public int Quantity { get; set; }
+        public double Price { get; set; }
+        public string? Adress { get; set; }
+        
+    }
+
+
 }

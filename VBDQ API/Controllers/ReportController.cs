@@ -136,6 +136,36 @@ namespace VBDQ_API.Controllers
 
             return Ok(dis);
         }
-        
+
+        [HttpGet("Product-Category-Supplier")]
+        public async Task<IActionResult> GetPCS()
+        {
+            try
+            {
+                var pcs = await context.Products.Include(c => c.Category).Include(s => s.Supplier)
+                                            .Select(x => new ProductCS
+                                            {
+                                                Id = x.ProductId,
+                                                CategoryName = x.Category.Name,
+                                                SupplierName = x.Supplier.SupplierName,
+                                                ContactName = x.Supplier.ContactName,
+                                                Quantity = x.Quantity,
+                                                Price = x.ProductPrice,
+                                                Adress = x.Supplier.Address,
+
+                                            }).ToListAsync();
+                if (pcs.Count > 0)
+                {
+                    return Ok(pcs);
+                }
+
+                return StatusCode(500);
+
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

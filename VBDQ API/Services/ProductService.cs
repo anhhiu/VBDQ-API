@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VBDQ_API.Data;
 using VBDQ_API.Dtos;
@@ -166,6 +168,8 @@ namespace VBDQ_API.Services
                 return (catepro, new Mess { Error = null, Status = "sucess" });
             }
         }
+
+       
 
         public async Task<(Product, Mess)> GetProByName(string name)
         {

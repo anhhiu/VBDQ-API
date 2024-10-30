@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VBDQ_API.Data;
 using VBDQ_API.Dtos;
+using VBDQ_API.Models;
 using VBDQ_API.Orther;
 using VBDQ_API.Services;
 
@@ -22,6 +23,17 @@ namespace VBDQ_API.Controllers
             this.service = service;
             this.context = context;
         }
+        [HttpGet("sql-raw")]
+
+        public async Task<IActionResult> GetCus()
+        {
+            var sql = $@"select * from Customers";
+
+            var cus = await context.Set<Customer>().FromSqlRaw(sql).ToListAsync();
+
+            return Ok(cus);
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> GetAllCustomer()
@@ -36,9 +48,9 @@ namespace VBDQ_API.Controllers
         }
 
         [HttpPost]
-       
-        [Authorize(Roles = AppRole.Staff)]
-        public async Task<IActionResult> AddCustomer(CustomerPP customerDto)
+
+        [Authorize(Roles = AppRole.Admin)]
+        public async Task<IActionResult> AddCustomer([FromForm]CustomerPP customerDto)
         {
             var (customer, mes) = await service.AddCustomer(customerDto);
 
@@ -48,10 +60,10 @@ namespace VBDQ_API.Controllers
             return BadRequest(mes.Status);
         }
         [HttpPut("{id}")]
-        [Authorize(Roles = AppRole.Customer)]
+       
         [Authorize(Roles = AppRole.Admin)]
-        [Authorize(Roles = AppRole.Staff)]
-        public async Task<IActionResult> UpdateCustomer(CustomerPP customerDto, int id)
+       
+        public async Task<IActionResult> UpdateCustomer([FromForm]CustomerPP customerDto, int id)
         {
             var (customer, mes) = await service.UpdateCustomer(customerDto, id);
 
@@ -62,9 +74,9 @@ namespace VBDQ_API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = AppRole.Customer)]
+        
         [Authorize(Roles = AppRole.Admin)]
-        [Authorize(Roles = AppRole.Staff)]
+        
         public async Task<IActionResult> DeleteCustomer(int id)
         {
             var mes = await service.DeleteCustomer(id);
@@ -103,6 +115,20 @@ namespace VBDQ_API.Controllers
                 })).ToListAsync();
 
             return Ok(lj);
+        }
+
+        [HttpGet("customer")]
+
+        public async Task<IActionResult> GetCustomer1()
+        {
+            var customerPPs = await context.Customers.Select(x => new CustomerPP
+            {
+                CustomerName = x.CustomerName,
+                Phone = x.Phone,
+                Address = x.Address,
+            }).ToListAsync();
+
+            return Ok(customerPPs);
         }
 
     }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using VBDQ_API.Data;
 using VBDQ_API.Dtos;
 using VBDQ_API.Services;
 
@@ -10,10 +12,12 @@ namespace VBDQ_API.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService service;
+        private readonly MyDbcontext context;
 
-        public ProductController(IProductService service)
+        public ProductController(IProductService service, MyDbcontext context)
         {
             this.service = service;
+            this.context = context;
         }
 
         [HttpGet]
@@ -149,6 +153,56 @@ namespace VBDQ_API.Controllers
             {
                 return BadRequest(mes.Status);
             }
+        }
+
+        [HttpGet("Categoryproductname")]
+        public async Task<IActionResult> GetCatePro1()
+        {
+            try
+            {
+                var capo = await context.Products.AsNoTracking().Select(x => new CateProDto
+                {
+                    NameCate = x.Category.Name,
+                    NamePro = x.ProductName,
+                    Quantity = x.Quantity,
+                    Price = x.ProductPrice,
+                }).OrderByDescending(x => x.Price)
+                   .ToListAsync();
+                return Ok(capo);
+            }catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        [HttpGet("ASCending-price")]
+        public async Task<IActionResult> AscendingPrice()
+        {
+            var asc = await context.Products.OrderBy(x => x.ProductPrice).ToListAsync();
+
+            return Ok(asc);
+        }
+
+        [HttpGet("Descending-price")]
+        public async Task<IActionResult> DescendingPrice()
+        {
+            var asc = await context.Products.OrderByDescending(x => x.ProductPrice).ToListAsync();
+
+            return Ok(asc);
+        }
+
+        [HttpGet("Max-price")]
+        public async Task<IActionResult> MaxPrice()
+        {
+            var max = await context.Products.MaxAsync(x => x.ProductPrice);
+
+            var min = await context.Products.MinAsync(x => x.ProductPrice);
+
+            var pro = await context.Products.CountAsync();
+
+
+            return Ok(pro);
         }
     }
 }

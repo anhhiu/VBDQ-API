@@ -14,6 +14,10 @@ namespace VBDQ_API.Models
         [Phone]
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } 
+        public DateTime DeleteAt { get; set; }  
         public string? TransactionStatus { get; set; } = "Đã mua";
         public string? PaymentStatus { get; set; } = "Đã chuyển";
         [JsonIgnore]

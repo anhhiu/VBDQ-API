@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VBDQ_API.Dtos;
 using VBDQ_API.Orther;
@@ -20,6 +19,7 @@ namespace VBDQ_API.Controllers
 
         [HttpGet]
         [Authorize]
+        [Authorize(Roles = $"{AppRole.Admin}, {AppRole.Customer}")]
         public async Task<IActionResult> GetAllTransaction()
         {
             var (transaction, mes) = await service.GetAllTransaction();
@@ -31,7 +31,7 @@ namespace VBDQ_API.Controllers
             return BadRequest(mes.Status);
         }
         [HttpPost]
-        [Authorize(Roles =AppRole.Admin)]
+        [Authorize(Roles = AppRole.Admin)]
         public async Task<IActionResult> AddTransaction(TransactionPP model)
         {
             var (transaction, mes) = await service.AddTransaction(model);
@@ -43,8 +43,8 @@ namespace VBDQ_API.Controllers
             return BadRequest(mes.Status);
         }
 
-        [HttpGet("{id}")]
-        [Authorize(Roles =AppRole.Customer)]
+        [HttpGet("{id:int}")]
+        [Authorize(Roles = AppRole.Customer)]
         public async Task<IActionResult> GetTransactionById(int id)
         {
             var (transaction, mes) = await service.GetTransactionById(id);
@@ -70,7 +70,7 @@ namespace VBDQ_API.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles =AppRole.Admin)]
+        [Authorize(Roles = AppRole.Admin)]
         public async Task<IActionResult> DeleteTranSaction(int id)
         {
             var mes = await service.DeleteTransaction(id);

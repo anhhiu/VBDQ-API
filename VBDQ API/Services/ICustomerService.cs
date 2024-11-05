@@ -12,6 +12,10 @@ namespace VBDQ_API.Services
         public Task<(Customer, Mess)> UpdateCustomer(CustomerPP customerDto, int id);
         public Task<Mess> DeleteCustomer(int id);
 
+        public Task<(Customer, Mess)> GetcustomerByName(string name);
 
+        public Task<(IEnumerable<Customer>, Mess)> GetAllCustomerByName(string name);
+
+        public Task<(IEnumerable<Customer>, Mess)> GetAllCustomerPT(int skip, int limit);
     }
 }

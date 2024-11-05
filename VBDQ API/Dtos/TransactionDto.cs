@@ -13,7 +13,9 @@ namespace VBDQ_API.Dtos
         public string? PaymentMethod { get; set; }
         [Phone]
         public string? PhoneNumber { get; set; }
-
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public DateTime DeleteAt { get; set; }
         public string? TransactionStatus { get; set; }
         public string? PaymentStatus { get; set; }
         [JsonIgnore]

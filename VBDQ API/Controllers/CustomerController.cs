@@ -12,7 +12,7 @@ namespace VBDQ_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
+
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerService service;
@@ -36,20 +36,22 @@ namespace VBDQ_API.Controllers
 
 
         [HttpGet]
+        [Authorize]
+        [Authorize(Roles = ($" {AppRole.Admin},{AppRole.Customer}, {AppRole.Staff}"))]
         public async Task<IActionResult> GetAllCustomer()
         {
-            var (customer,mes) = await service.GetAlLCustomer();
+            var (customer, mes) = await service.GetAlLCustomer();
 
-            if( mes.Error == null)
+            if (mes.Error == null)
                 return Ok(customer);
 
             return BadRequest(mes.Status);
-            
+
         }
 
         [HttpPost]
 
-        [Authorize(Roles = AppRole.Admin)]
+        [Authorize(Roles = $"{AppRole.Admin}, {AppRole.Staff}")]
         public async Task<IActionResult> AddCustomer([FromForm]CustomerPP customerDto)
         {
             var (customer, mes) = await service.AddCustomer(customerDto);
@@ -62,7 +64,7 @@ namespace VBDQ_API.Controllers
         [HttpPut("{id}")]
        
         [Authorize(Roles = AppRole.Admin)]
-       
+        [Authorize(Roles = ($"{AppRole.Customer}, {AppRole.Admin}"))]
         public async Task<IActionResult> UpdateCustomer([FromForm]CustomerPP customerDto, int id)
         {
             var (customer, mes) = await service.UpdateCustomer(customerDto, id);
@@ -76,7 +78,7 @@ namespace VBDQ_API.Controllers
         [HttpDelete("{id}")]
         
         [Authorize(Roles = AppRole.Admin)]
-        
+        [Authorize(Roles = ($"{AppRole.Customer}, {AppRole.Admin}"))]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
             var mes = await service.DeleteCustomer(id);
@@ -86,7 +88,8 @@ namespace VBDQ_API.Controllers
             return BadRequest(mes.Status);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
+        [Authorize(Roles = AppRole.Customer)]
         public async Task<IActionResult> GetCustomerById(int id)
         {
             var (customer, mes) = await service.GetCustomerById(id);
@@ -131,5 +134,39 @@ namespace VBDQ_API.Controllers
             return Ok(customerPPs);
         }
 
+        [HttpGet("{name}")]
+        public async Task<IActionResult> GetCustomerByName([FromRoute] string name)
+        {
+            var (cus, mes) = await service.GetcustomerByName(name);
+
+            if(mes.Error == null)
+            {
+                return Ok(cus);
+            }
+            return StatusCode(400, mes.Status);
+        }
+
+        [HttpGet("customer/{name}")]
+
+        public async Task<IActionResult> GetCusByNameList(string name)
+        {
+            var (cus, mes) = await service.GetAllCustomerByName(name);
+            if(mes.Error == null)
+            {
+                return Ok(cus);
+            }
+            return StatusCode(400, mes.Status);
+        }
+
+        [HttpGet("customerPt")]
+        public async Task<IActionResult> GetCustomerPT(int skip, int limit)
+        {
+            var (cus, mes) = await service.GetAllCustomerPT(skip, limit);
+            if (mes.Error == null)
+            {
+                return Ok(cus);
+            }
+            return StatusCode(400, mes.Status);
+        }
     }
 }

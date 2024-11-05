@@ -10,6 +10,6 @@ namespace VBDQ_API.Models
         public string? CustomerName { get; set; }
         public string? Address { get; set; }
         public string? Phone { get; set; }
-        public IEnumerable<Transaction> Transactions { get; set; } = new List<Transaction>();
+        public IEnumerable<Transaction?> Transactions { get; set; } = new List<Transaction>();
     }
 }

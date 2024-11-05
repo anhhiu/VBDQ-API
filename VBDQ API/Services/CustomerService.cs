@@ -81,6 +81,49 @@ namespace VBDQ_API.Services
             }
         }
 
+        public async Task<(IEnumerable<Customer>, Mess)> GetAllCustomerByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return (null, new Mess { Error = string.Empty, Status = "ten khong hop le" });
+            }
+
+            var customers = await context.Customers
+                        .Where(c => c.CustomerName.ToLower().Contains(name.ToLower()))
+                        .ToListAsync();
+
+            if (customers == null)
+            {
+                return (null, new Mess { Error = "khong co", Status = "khong co khach hang nao co ten nhu vay" });
+
+            }
+
+            return (customers, new Mess { Error = null, Status = "sucess" });
+        }
+
+        public async Task<(IEnumerable<Customer>, Mess)> GetAllCustomerPT(int skip, int limit)
+        {
+            try
+            {
+                var customer = await context.Customers.OrderByDescending(c => c.CustomerId)
+                                                      .Skip((skip -1)*limit)
+                                                      .Take(limit)
+                                                      .ToListAsync();
+
+                if (customer == null)
+                {
+                    return (null, new Mess { Error = "khong co gi", Status = "Khong co khac hang nao" });
+                }
+
+                return (customer, new Mess { Error = null, Status = "sucess"});
+
+
+            }catch (Exception ex)
+            {
+                return (null, new Mess {Error = "loi roi", Status = ex.Message });
+            }
+        }
+
         public async Task<(CustomerDto, Mess)> GetCustomerById(int id)
         {
             var customer = await context.Customers
@@ -96,6 +139,30 @@ namespace VBDQ_API.Services
             await context.SaveChangesAsync();
 
             return (customerclient, new Mess { Error = null, Status = "Xóa thành công khách hàng có Id = 7" });
+        }
+
+        public async Task<(Customer?, Mess)> GetcustomerByName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return (null, new Mess { Error = "ten khong hop le", Status = "ten khong hop le" });
+            }
+
+            //var customer = await context.Customers
+            //    .FirstOrDefaultAsync(c => c.CustomerName.ToLower().Contains(name.ToLower()));
+
+            // Tách tên thành các từ để tìm kiếm
+            var nameParts = name.ToLower().Split(' '); // Chia tên thành từng từ
+
+            var customer = await context.Customers
+                .Where(c => nameParts.All(part => c.CustomerName.ToLower().Contains(part))) // Tìm kiếm tất cả các từ
+                .FirstOrDefaultAsync();
+
+            if (customer == null)
+            {
+                return (customer, new Mess { Error = "khong tim thay", Status = "khong co khac hang nao co ten nhu the" });
+            }
+            return (customer, new Mess {Error = null, Status = "sucess" });
         }
 
         public async Task<(Customer, Mess)> UpdateCustomer(CustomerPP customerDto, int id)

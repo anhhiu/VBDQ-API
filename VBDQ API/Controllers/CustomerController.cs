@@ -88,7 +88,7 @@ namespace VBDQ_API.Controllers
             return BadRequest(mes.Status);
         }
 
-        //[HttpGet("{id:int}")]
+        [HttpGet("{id:int}")]
         //[Authorize(Roles = AppRole.Customer)]
         public async Task<IActionResult> GetCustomerById(int id)
         {

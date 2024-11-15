@@ -241,12 +241,36 @@ namespace VBDQ_API.Services
                 return response;
             }
 
-            if (transactionStatus == StatusTransactions.DangGiao.ToLower().Trim() || transactionStatus == StatusTransactions.HoanThanh.ToLower().Trim())
+            if(transaction.TransactionStatus == StatusTransactions.DaHuy.ToLower().Trim())
+            {
+                response.Data = transaction;
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Message = "đơn hàng đã hủy, không thể cập nhật TransactionStatus ";
+                return response;
+            }
+
+
+            if (transactionStatus == StatusTransactions.DangGiao.ToLower().Trim()
+                || transactionStatus == StatusTransactions.HoanThanh.ToLower().Trim() 
+                || transactionStatus == StatusTransactions.DaHuy.ToLower().Trim())
             {
                 if (transactionStatus == StatusTransactions.HoanThanh.ToLower().Trim())
                 {
                     paymentStatus = StatusTransactions.DaNhanTienThanhCong;
 
+                }
+
+                if(transactionStatus == StatusTransactions.DaHuy.ToLower().ToLower().Trim())
+                {
+                    paymentStatus = " Da Huy";
+                    transaction.UpdatedAt = DateTime.Now;
+
+                    context.Transactions.Update(transaction);
+                    await context.SaveChangesAsync();
+
+                    response.Data = transaction;
+                    response.StatusCode = (int)HttpStatusCode.OK;
+                    response.Message = " Huy don hang thanh cong";
                 }
 
                 // Chỉ cập nhật TransactionStatus nếu PaymentStatus chưa hoàn thành

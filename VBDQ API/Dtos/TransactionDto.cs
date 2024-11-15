@@ -44,34 +44,6 @@ namespace VBDQ_API.Dtos
         public string? TransactionStatus { get; set; }
     }
 
-    public class TransactionUpdate2
-    {
-        // Trạng thái giao dịch, ví dụ: "đang xử lý", "đã xác nhận", "hoàn tất", "đã hủy"
-        public string? TransactionStatus { get; set; }
-
-        // Phương thức thanh toán, ví dụ: "thanh toán khi nhận hàng", "chuyển khoản"
-        public string? PaymentMethod { get; set; }
-
-        // Trạng thái thanh toán, ví dụ: "chưa thanh toán", "đã nhận tiền thành công"
-        public string? PaymentStatus { get; set; }
-
-        // Địa chỉ giao hàng
-        public string? Address { get; set; }
-
-        // Số điện thoại của khách hàng
-        public string? PhoneNumber { get; set; }
-
-        // Danh sách chi tiết sản phẩm trong giao dịch (cập nhật số lượng, đơn giá)
-        public List<TransactionDetailUpdate>? TransactionDetails { get; set; }
-
-        // Phí vận chuyển hoặc chi phí bổ sung
-        public double? ShippingFee { get; set; }
-
-        // Các ghi chú bổ sung cho giao dịch
-        public string? Notes { get; set; }
-    }
-
-
     public class TransactionPP
     {
         public int CustomerId { get; set; }

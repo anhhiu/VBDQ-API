@@ -13,9 +13,21 @@ namespace VBDQ_API.Dtos
         public double UnitPrice { get; set; }
         public double Discount { get; set; }
         public double TotalPrice { get; set; }
-        [JsonIgnore]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public ProductDto? ProductDto { get; set; }
         [JsonIgnore]
         public TransactionDto? TransactionDto { get; set; }
     }
+
+    public class TransactionDetailCreate
+    {
+        public int ProductId { get; set; }
+        public int Quantity { get; set; }
+        
+        [JsonIgnore]
+        public Product? Product { get; set; }
+        [JsonIgnore]
+        public Transaction? Transaction { get; set; }
+    }
+
 }

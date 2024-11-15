@@ -36,8 +36,8 @@ namespace VBDQ_API.Controllers
 
 
         [HttpGet]
-        [Authorize]
-        [Authorize(Roles = ($" {AppRole.Admin},{AppRole.Customer}, {AppRole.Staff}"))]
+        //[Authorize]
+        //[Authorize(Roles = ($" {AppRole.Admin},{AppRole.Customer}, {AppRole.Staff}"))]
         public async Task<IActionResult> GetAllCustomer()
         {
             var (customer, mes) = await service.GetAlLCustomer();
@@ -51,7 +51,7 @@ namespace VBDQ_API.Controllers
 
         [HttpPost]
 
-        [Authorize(Roles = $"{AppRole.Admin}, {AppRole.Staff}")]
+        //[Authorize(Roles = $"{AppRole.Admin}, {AppRole.Staff}")]
         public async Task<IActionResult> AddCustomer([FromForm]CustomerPP customerDto)
         {
             var (customer, mes) = await service.AddCustomer(customerDto);
@@ -63,8 +63,8 @@ namespace VBDQ_API.Controllers
         }
         [HttpPut("{id}")]
        
-        [Authorize(Roles = AppRole.Admin)]
-        [Authorize(Roles = ($"{AppRole.Customer}, {AppRole.Admin}"))]
+        //[Authorize(Roles = AppRole.Admin)]
+        //[Authorize(Roles = ($"{AppRole.Customer}, {AppRole.Admin}"))]
         public async Task<IActionResult> UpdateCustomer([FromForm]CustomerPP customerDto, int id)
         {
             var (customer, mes) = await service.UpdateCustomer(customerDto, id);
@@ -77,8 +77,8 @@ namespace VBDQ_API.Controllers
 
         [HttpDelete("{id}")]
         
-        [Authorize(Roles = AppRole.Admin)]
-        [Authorize(Roles = ($"{AppRole.Customer}, {AppRole.Admin}"))]
+        //[Authorize(Roles = AppRole.Admin)]
+        //[Authorize(Roles = ($"{AppRole.Customer}, {AppRole.Admin}"))]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
             var mes = await service.DeleteCustomer(id);
@@ -88,8 +88,8 @@ namespace VBDQ_API.Controllers
             return BadRequest(mes.Status);
         }
 
-        [HttpGet("{id:int}")]
-        [Authorize(Roles = AppRole.Customer)]
+        //[HttpGet("{id:int}")]
+        //[Authorize(Roles = AppRole.Customer)]
         public async Task<IActionResult> GetCustomerById(int id)
         {
             var (customer, mes) = await service.GetCustomerById(id);

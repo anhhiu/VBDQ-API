@@ -24,7 +24,8 @@ namespace VBDQ_API.Data
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)
                 .WithMany(p => p.Products)
-                .HasForeignKey(p => p.CategoryId);
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Supplier)
@@ -41,10 +42,11 @@ namespace VBDQ_API.Data
                 .WithMany(td => td.TransactionDetails)
                 .HasForeignKey(td => td.TransactionId);
 
-            modelBuilder.Entity<TransactionDetail>()
-                .HasOne(td => td.Product)
-                .WithMany(td => td.TransactionDetails)
-                .HasForeignKey(td => td.ProductId);
+            //modelBuilder.Entity<TransactionDetail>()
+            //    .HasOne(td => td.Product)
+            //    .WithMany(td => td.TransactionDetails)
+            //    .HasForeignKey(td => td.ProductId);
+            
         }
     }
 }

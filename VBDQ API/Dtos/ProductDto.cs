@@ -6,7 +6,7 @@ namespace VBDQ_API.Dtos
 {
     public class ProductDto
     {
-        public int ProductId { get; set; }
+        
         public string? ProductName { get; set; }
         public int CategoryId { get; set; }
         public string? Weight { get; set; }
@@ -26,7 +26,32 @@ namespace VBDQ_API.Dtos
         [JsonIgnore]
         public SupplierDto? SupplierDto { get; set; }
 
-        public IEnumerable<TransactionDetailDto> TransactionDetailDtos { get; set; } = Enumerable.Empty<TransactionDetailDto>();
+
+    }
+
+    public class ProductDtoName
+    {
+        public int ProductId { get; set; }
+        public string? ProductName { get; set; }
+        public string? CategoryName { get; set; }
+        public string? Weight { get; set; }
+
+        public string? Suppliername { get; set; }
+        public string? Description { get; set; }
+
+        public int Quantity { get; set; }
+
+        public double ProductPrice { get; set; }
+
+        public double Discount { get; set; }
+
+        public bool Available { get; set; }
+        [JsonIgnore]
+        public Category? Category { get; set; }
+        [JsonIgnore]
+        public Supplier? Supplier { get; set; }
+
+     //   public IEnumerable<TransactionDetailDto> TransactionDetailDtos { get; set; } = Enumerable.Empty<TransactionDetailDto>();
     }
 
     public class ProductCS

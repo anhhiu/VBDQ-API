@@ -23,12 +23,12 @@ namespace VBDQ_API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllProduct()
         {
-            var (product, mes) = await service.GetAllProduct();
+            var product = await service.GetAllProduct();
 
             return Ok(product);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetProductById(int id)
         {
             var (product, mes) = await service.GetProductById(id);
@@ -49,7 +49,7 @@ namespace VBDQ_API.Controllers
             return BadRequest(mes.Status);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
 
         public async Task<IActionResult> UpdateProduct(ProductDto productDto, int id)
         {
@@ -60,7 +60,7 @@ namespace VBDQ_API.Controllers
             return BadRequest(mes.Status);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
 
         public async Task<IActionResult> DeleteProduct(int id)
         {
@@ -70,12 +70,12 @@ namespace VBDQ_API.Controllers
 
             return BadRequest(mes.Status);
         }
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchName([FromQuery] string name)
+        [HttpGet("{name}")]
+        public async Task<IActionResult> SearchName(string name)
         {
-            var (search, mes) =await service.GetProductByName(name);
+            var (search, mes) = await service.GetProductByName(name);
 
-            if (mes.Error == null) 
+            if (mes.Error == null)
                 return Ok(search);
 
             return BadRequest(mes.Status);
@@ -83,126 +83,47 @@ namespace VBDQ_API.Controllers
 
         [HttpGet("pagination")]
 
-        public async Task<IActionResult> GetAllProduct(int skip, int take)
+        public async Task<IActionResult> GetAllProduct(int page, int limit)
         {
-            var (products, mes) = await service.GetAllProduct(skip, take);
+            var (products, total,repage,  relimit, mes) = await service.GetAllProduct(page, limit);
 
-            if(mes.Error == null)
-                return Ok(products);
+            if (mes.Error == null)
+                return Ok(new
+                {
+                    Products = products,
+                    Total = total,
+                    Limit = relimit,
+                    Page = repage,
+                });
 
             return BadRequest(mes.Status);
         }
 
 
         [HttpGet("search-pagination")]
-
-        public async Task<IActionResult> GetAllProuduct(string name, int skip, int take)
+        public async Task<IActionResult> GetAllProduct(string? name, int page, int limit)
         {
-            var (products, mes) = await service.GetALlProductNamePage(name, skip, take);
+            var (products, total, returnedPage, returnedLimit, mes) = await service.GetALlProductNamePage(name, page, limit);
 
             if (mes.Error == null)
             {
-                return Ok(products);
-            }
-            else
-            {
-                return BadRequest(mes.Status);
-            }
-        }
-
-        [HttpGet("search-name")]
-
-        public async Task<IActionResult> GetProductByName([FromQuery] string name)
-        {
-            var (product, mes) = await service.GetProByName(name);
-            if(mes.Error == null)
-            {
-                return Ok(product);
-            }
-            else
-            {
-                return BadRequest(mes.Status);
-            }
-
-        }
-        [HttpGet("category-product-name")]
-        public async Task<IActionResult> GetCatePro()
-        {
-            var (catepro, mes) = await service.GetCatePro();
-
-            if(mes.Error == null)
-            {
-                return Ok(catepro);
-            }
-            else
-            {
-                return BadRequest(mes.Status);
-            }
-        }
-
-        [HttpGet("category-product-nameGroup")]
-        public async Task<IActionResult> GetCateProNameGroup()
-        {
-            var (catepro, mes) = await service.GetCategoriesNameList();
-
-            if (mes.Error == null)
-            {
-                return Ok(catepro);
-            }
-            else
-            {
-                return BadRequest(mes.Status);
-            }
-        }
-
-        [HttpGet("Categoryproductname")]
-        public async Task<IActionResult> GetCatePro1()
-        {
-            try
-            {
-                var capo = await context.Products.AsNoTracking().Select(x => new CateProDto
+                return Ok(new
                 {
-                    NameCate = x.Category.Name,
-                    NamePro = x.ProductName,
-                    Quantity = x.Quantity,
-                    Price = x.ProductPrice,
-                }).OrderByDescending(x => x.Price)
-                   .ToListAsync();
-                return Ok(capo);
-            }catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
+                    Products = products,
+                    Page = returnedPage,
+                    Limit = returnedLimit,
+                    Total = total,
+                    Status = mes.Status
+                });
             }
-
-        }
-
-        [HttpGet("ASCending-price")]
-        public async Task<IActionResult> AscendingPrice()
-        {
-            var asc = await context.Products.OrderBy(x => x.ProductPrice).ToListAsync();
-
-            return Ok(asc);
-        }
-
-        [HttpGet("Descending-price")]
-        public async Task<IActionResult> DescendingPrice()
-        {
-            var asc = await context.Products.OrderByDescending(x => x.ProductPrice).ToListAsync();
-
-            return Ok(asc);
-        }
-
-        [HttpGet("Max-price")]
-        public async Task<IActionResult> MaxPrice()
-        {
-            var max = await context.Products.MaxAsync(x => x.ProductPrice);
-
-            var min = await context.Products.MinAsync(x => x.ProductPrice);
-
-            var pro = await context.Products.CountAsync();
-
-
-            return Ok(pro);
+            else
+            {
+                return BadRequest(new
+                {
+                    Error = mes.Error,
+                    Status = mes.Status
+                });
+            }
         }
     }
 }

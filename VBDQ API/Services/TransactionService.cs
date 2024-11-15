@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
-using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using VBDQ_API.Conmon;
 using VBDQ_API.Data;
 using VBDQ_API.Dtos;
 using VBDQ_API.Models;
@@ -19,18 +20,26 @@ namespace VBDQ_API.Services
             this.mapper = mapper;
         }
 
-        public async Task<(TransactionDto?, Mess?)> AddTransaction(TransactionPP model)
+        public async Task<ServiceResponse<dynamic>?> AddTransactionAsync(TransactionCreate model)
         {
+
+            var response = new ServiceResponse<dynamic>();
+
             try
             {
                 if (model == null)
                 {
-                    return (null, new Mess { Error = "loi roi", Status = "model transaction is null" });
+                    response.Data = new { };
+                    response.Message = "input error";
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return response;
                 }
 
                 var transactionDetailList = new List<TransactionDetail>();
+                double totalPrice = 0;
+                double shipfree = model.ShippingFree;
+                string transactionStatus;
 
-                double sumPrice = 0;
                 if (model.TransactionDetails != null && model.TransactionDetails.Any())
                 {
                     foreach (var item in model.TransactionDetails)
@@ -39,29 +48,35 @@ namespace VBDQ_API.Services
 
                         if (product == null)
                         {
-                            return (null, new Mess { Error = "loi roi", Status = "model product is null" });
+
+                            response.Message = "This product is not availble - san pham nay khong co san";
+                            response.StatusCode = (int)HttpStatusCode.NotFound;
+                            return response;
                         }
 
-                        double priceAfterDiscount = product.ProductPrice - product.Discount;
-                        var uninprice = priceAfterDiscount * item.Quantity;
+                        double aftermoney = product.ProductPrice - product.Discount;
+                        double unitPrice = item.Quantity * aftermoney;
 
-                        if (product.Quantity < item.Quantity)
+                        if (item.Quantity > product.Quantity)
                         {
-                            return (null, new Mess { Error = "loi roi", Status = "so luong hang trong kho khong co du" });
+
+                            response.Message = "trong kho khong du";
+                            response.StatusCode = (int)HttpStatusCode.BadRequest;
+                            return response;
                         }
 
                         product.Quantity -= item.Quantity;
 
-                        sumPrice += uninprice;
+                        totalPrice += unitPrice;
 
                         var transactionDetail = new TransactionDetail
                         {
                             ProductId = product.ProductId,
                             Quantity = item.Quantity,
                             Discount = product.Discount,
-                            UnitPrice = priceAfterDiscount,
-                            TotalPrice = uninprice,
-                           
+                            UnitPrice = aftermoney,
+                            TotalPrice = unitPrice,
+
                         };
 
                         transactionDetailList.Add(transactionDetail);
@@ -69,53 +84,75 @@ namespace VBDQ_API.Services
                 }
                 else
                 {
-                    return (null, new Mess { Error = "loi roi", Status = "don hang khong co san pham" });
+                    response.Data = new { };
+                    response.Message = "transaction not sucessfull - order has no product";
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return response;
+                }
+
+                // Thiết lập transactionStatus và paymentStatus dựa trên paymentMethod
+
+                // string paymentStatus = model.PaymentMethod == StatusTransactions.ChuyenKhoan ? "Đã nhân tiền thành công" : model.PaymentMethod;
+
+                if (model.PaymentMethod!.ToLower().Trim() == StatusTransactions.ChuyenKhoan.ToLower().Trim())
+                {
+                    transactionStatus = StatusTransactions.DaXacNhan;
+                }
+                else // Trường hợp "thanh toán khi nhận hàng"
+                {
+                    transactionStatus = StatusTransactions.DangXuLy;
                 }
 
 
                 var transaction = new Transaction
                 {
                     CustomerId = model.CustomerId,
-                    PhoneNumber = model.PhoneNumber,
                     Address = model.Address,
-                    CreatedAt = DateTime.UtcNow,
+                    PhoneNumber = model.PhoneNumber,
+                    TotalAmount = totalPrice - shipfree,
+                    PaymentStatus = model.PaymentStatus,
                     PaymentMethod = model.PaymentMethod,
-                    TotalAmount = sumPrice,
+                    TransactionStatus = transactionStatus,
+                    ShippingFee = shipfree,
+                    Notes = model.Notes
                 };
 
-                await context.Transactions.AddAsync(transaction);
+                context.Transactions.Add(transaction);
 
-                await context.SaveChangesAsync();
+                context.SaveChanges();
 
-                foreach (var transactionDetai in transactionDetailList)
+                foreach (var item in transactionDetailList)
                 {
-                    transactionDetai.TransactionId = transaction.TransactionId;
+                    item.TransactionId = transaction.TransactionId;
 
-                    context.TransactionDetails.Add(transactionDetai);
-
+                    context.TransactionDetails.Add(item);
                 }
 
                 await context.SaveChangesAsync();
 
-                var transactionClient = mapper.Map<TransactionDto>(transaction);
-
-                return (transactionClient, new Mess { Error = null, Status = "sucess" });
-
+                response.Data = transaction;
+                response.Message = "transaction  sucessfull";
+                response.StatusCode = (int)HttpStatusCode.OK;
+                return response;
 
             }
             catch (Exception ex)
             {
-                return (null, new Mess { Error = "loi roi", Status = ex.Message });
+                response.Data = new { };
+                response.Message = "server error" + ex.Message;
+                response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                return response;
             }
+
         }
 
         public async Task<Mess> DeleteTransaction(int id)
         {
             var transaction = await context.Transactions.FindAsync(id);
 
-            if(transaction == null)
+            if (transaction == null)
             {
-                return new Mess {Error = "loi roi", Status = "Không tìm thấy, chắc là chưa tạo hoặc xóa rồi đấy cụ" };
+                return new Mess { Error = "loi roi", Status = "Không tìm thấy, chắc là chưa tạo hoặc xóa rồi đấy cụ" };
             }
             context.Transactions.Remove(transaction);
 
@@ -124,27 +161,33 @@ namespace VBDQ_API.Services
             return new Mess { Error = null, Status = "Xóa thành công kakaka" };
         }
 
-        public async Task<(IEnumerable<TransactionDto>, Mess)> GetAllTransaction()
+        public async Task<(IEnumerable<TransactionDto>?, Mess)> GetAllTransaction()
         {
             try
             {
                 var transaction = await context.Transactions
-                .OrderByDescending(t => t.TransactionId)
-                .Include(t => t.TransactionDetails).ToListAsync();
+                                        .AsNoTracking()
+                                        .OrderByDescending(t => t.TransactionId)
+                                        .Include(t => t.Customer)
+                                        .Include(t => t.TransactionDetails)
+                                        .ThenInclude(t => t.Product)
+                                        .ToListAsync();
 
                 if (transaction == null)
+
                     return (null, new Mess { Error = "loi roi", Status = "khong co ban ghi nao cả" });
 
                 var transactionClient = mapper.Map<IEnumerable<TransactionDto>>(transaction);
 
                 return (transactionClient, new Mess { Error = null, Status = "sucess" });
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
-                return (null, new Mess { Error = "loi roi", Status = ex.Message});
+                return (null, new Mess { Error = "loi roi", Status = ex.Message });
             }
         }
 
-        public async Task<(TransactionDto, Mess)> GetTransactionById(int id)
+        public async Task<(TransactionDto?, Mess)> GetTransactionById(int id)
         {
             try
             {
@@ -157,106 +200,86 @@ namespace VBDQ_API.Services
                 var transactionClient = mapper.Map<TransactionDto>(transaction);
 
                 return (transactionClient, new Mess { Error = null, Status = "SUCESS" });
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return (null, new Mess { Error = "loi roi", Status = ex.Message });
             }
         }
 
-        public async Task<(TransactionDto?, Mess)> UpdateTransaction(TransactionPP model, int id)
+        public async Task<ServiceResponse<dynamic>?> UpdateTransactionAsync(TransactionUpdate model, int id)
         {
-            try
+            var response = new ServiceResponse<dynamic>();
+            string paymentStatus = "";
+            string transactionStatus = model.TransactionStatus!.ToLower().Trim();
+            // kiem tra null
+            if (model == null)
             {
-                if (model == null)
-                {
-                    return (null, new Mess { Error = "Lỗi rồi", Status = "Lỗi model" });
-                }
-
-                var transaction = await context.Transactions
-                    .Include(t => t.TransactionDetails)
-                    .FirstOrDefaultAsync(t => t.TransactionId == id);
-
-                if (transaction == null)
-                {
-                    return (null, new Mess { Error = "Lỗi rồi", Status = "Không có giao dịch nào như này" });
-                }
-
-                // Đặt lại tổng giá trị
-                double sumPrice = 0;
-
-                if (model.TransactionDetails != null && model.TransactionDetails.Any())
-                {
-                    foreach (var item in model.TransactionDetails)
-                    {
-                        var product = await context.Products.FindAsync(item.ProductId);
-
-                        if (product == null)
-                        {
-                            continue; // Bỏ qua nếu không tìm thấy sản phẩm
-                        }
-
-                        if (product.Quantity < item.Quantity)
-                        {
-                            continue; // Bỏ qua nếu tồn kho không đủ
-                        }
-
-                        var priceAfterDiscount = product.ProductPrice - product.Discount;
-                        var totalPriceForItem = priceAfterDiscount * item.Quantity;
-
-                        product.Quantity -= item.Quantity;
-
-                        var existingTransactionDetail = transaction.TransactionDetails
-                            .FirstOrDefault(t => t.ProductId == item.ProductId);
-
-                        if (existingTransactionDetail != null)
-                        {
-                            existingTransactionDetail.Quantity = item.Quantity;
-                            existingTransactionDetail.UnitPrice = priceAfterDiscount;
-                            existingTransactionDetail.TotalPrice = totalPriceForItem;
-                            existingTransactionDetail.Discount = product.Discount;
-                        }
-                        else
-                        {
-                            var newTransactionDetail = new TransactionDetail
-                            {
-                                ProductId = item.ProductId,
-                                Quantity = item.Quantity,
-                                UnitPrice = priceAfterDiscount,
-                                TotalPrice = totalPriceForItem,
-                                Discount = product.Discount,
-                            };
-                            transaction.TransactionDetails.Add(newTransactionDetail);
-                        }
-                    }
-                }
-                else
-                {
-                    return (null, new Mess { Error = "Lỗi rồi", Status = "Không có bản ghi nào cả" });
-                }
-
-                // Tính tổng giá trị từ tất cả các chi tiết giao dịch hiện có
-                sumPrice = transaction.TransactionDetails.Sum(td => td.TotalPrice);
-                transaction.UpdatedAt = DateTime.UtcNow;
-                transaction.Address = model.Address;
-                transaction.PhoneNumber = model.PhoneNumber;
-                transaction.PaymentMethod = model.PaymentMethod;
-                transaction.TotalAmount = sumPrice;
-
-                await context.SaveChangesAsync();
-
-                var transactionClient = mapper.Map<TransactionDto>(transaction);
-
-                return (transactionClient, new Mess { Error = null, Status = "Cập nhật thành công" });
+                response.Data = new { };
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.Message = "input error";
+                return response;
             }
-            catch (DbUpdateConcurrencyException)
+
+            var transaction = await context.Transactions
+                                           .Include(t => t.TransactionDetails)
+                                           .FirstOrDefaultAsync(t => t.TransactionId == id);
+
+            if (transaction == null)
             {
-                return (null, new Mess { Error = "Lỗi rồi", Status = "Update transaction thất bại" });
+                response.Data = new { };
+                response.StatusCode = (int)HttpStatusCode.NotFound;
+                response.Message = "not found";
+                return response;
             }
-            catch (Exception ex)
+
+            if (transaction.TransactionStatus == StatusTransactions.HoanThanh.ToLower().Trim())
             {
-                return (null, new Mess { Error = "Lỗi rồi", Status = ex.Message });
+                response.Data = transaction;
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Message = "đơn hàng đã hoàn thành, không thể cập nhật TransactionStatus nữa";
+                return response;
             }
+
+            if (transactionStatus == StatusTransactions.DangGiao.ToLower().Trim() || transactionStatus == StatusTransactions.HoanThanh.ToLower().Trim())
+            {
+                if (transactionStatus == StatusTransactions.HoanThanh.ToLower().Trim())
+                {
+                    paymentStatus = StatusTransactions.DaNhanTienThanhCong;
+
+                }
+
+                // Chỉ cập nhật TransactionStatus nếu PaymentStatus chưa hoàn thành
+                if (model.TransactionStatus != null)
+                {
+                    transaction.TransactionStatus = model.TransactionStatus;
+                }
+
+                // Chỉ cập nhật PaymentStatus nếu cần
+                if (!string.IsNullOrEmpty(paymentStatus))
+                {
+                    transaction.PaymentStatus = paymentStatus;
+                }
+
+                transaction.UpdatedAt = DateTime.Now;
+
+                context.Transactions.Update(transaction);
+                context.SaveChanges();
+
+                response.Data = transaction;
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Message = "update sucessful";
+
+            }
+            else
+            {
+                response.Data = new { };
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.Message = "Invalid input";
+                return response;
+            }
+
+            return response;
         }
-
     }
 }

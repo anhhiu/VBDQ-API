@@ -28,12 +28,12 @@ namespace VBDQ_API.Mapping
                 .ForMember(dest => dest.SupplierId, opt => opt.Ignore())
                 .ForMember(dest => dest.Products, opt => opt.Ignore());
 
-            CreateMap<Product, ProductDto>()
-                .ForMember(dest => dest.TransactionDetailDtos, opt => opt.MapFrom(src => src.TransactionDetails));
+            //CreateMap<Product, ProductDto>()
+            //    .ForMember(dest => dest.TransactionDetailDtos, opt => opt.MapFrom(src => src.TransactionDetails));
                
-            CreateMap<ProductDto, Product>()
-                 .ForMember(dest => dest.ProductId, opt => opt.Ignore())
-                 .ForMember(dest => dest.TransactionDetails, opt => opt.Ignore());
+            //CreateMap<ProductDto, Product>()
+            //     .ForMember(dest => dest.ProductId, opt => opt.Ignore())
+            //     .ForMember(dest => dest.TransactionDetails, opt => opt.Ignore());
 
             CreateMap<Transaction, TransactionDto>()
                 .ForMember(dest => dest.TransactionDetails, opt => opt.MapFrom(src => src.TransactionDetails));

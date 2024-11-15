@@ -24,7 +24,7 @@ namespace VBDQ_API.Models
         [JsonIgnore]
         public virtual Supplier? Supplier { get; set; }
 
-        public IEnumerable<TransactionDetail> TransactionDetails { get; set; } = new List<TransactionDetail>();
+       // public IEnumerable<TransactionDetail> TransactionDetails { get; set; } = new List<TransactionDetail>();
 
     }
       

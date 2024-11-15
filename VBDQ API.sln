@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VBDQ API", "VBDQ API\VBDQ API.csproj", "{D38F0587-7006-4E34-9EB9-18CC112A4DAC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VBDQ API", "VBDQ API\VBDQ API.csproj", "{D38F0587-7006-4E34-9EB9-18CC112A4DAC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaHoaGiaiMa", "MaHoaGiaiMa\MaHoaGiaiMa.csproj", "{E08EBDB7-C992-4563-823A-AAFFBEEAEA5C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{D38F0587-7006-4E34-9EB9-18CC112A4DAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D38F0587-7006-4E34-9EB9-18CC112A4DAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D38F0587-7006-4E34-9EB9-18CC112A4DAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E08EBDB7-C992-4563-823A-AAFFBEEAEA5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E08EBDB7-C992-4563-823A-AAFFBEEAEA5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E08EBDB7-C992-4563-823A-AAFFBEEAEA5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E08EBDB7-C992-4563-823A-AAFFBEEAEA5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

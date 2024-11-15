@@ -32,6 +32,25 @@ namespace VBDQ_API.Controllers
             }
             return BadRequest(mes.Status);
         }
+
+        [HttpGet("Gridquery")]
+        public async Task<IActionResult> GetAllTransaction([FromQuery]GridQuery gridQuery)
+        {
+           var( response, skip, page, total) = await service.GetTransactionAsync(gridQuery);
+
+            if(response == null)
+            {
+                return StatusCode(response!.StatusCode);
+            }
+
+            return Ok(new
+            {
+                Data = response,
+                Skip = skip,
+                Page = page,
+                Total = total
+            });
+        }
      
         [HttpPost("create")]
         public async Task<IActionResult> AddTransactionAsync(TransactionCreate model)

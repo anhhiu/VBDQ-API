@@ -325,6 +325,8 @@ namespace VBDQ_API.Services
                 {
                     transactions = transactions.Where(p => p.Address!.ToLower().Contains(gridQuery.Filter.ToLower())
                                                         || p.TransactionStatus!.ToLower().Contains(gridQuery.Filter.ToLower())
+                                                        || p.CustomerId! == int.Parse(gridQuery.Filter)
+                                                        || p.Customer!.CustomerName!.Contains(gridQuery.Filter.ToLower())
                                                         || p.TransactionId == int.Parse(gridQuery.Filter)
                                                         || p.PaymentStatus!.ToLower().Contains(gridQuery.Filter.ToLower())
                                                         || p.PaymentMethod!.ToLower().Contains(gridQuery.Filter.ToLower()));
@@ -342,17 +344,25 @@ namespace VBDQ_API.Services
                 }
 
                 // Sắp xếp (Sort)
-                if (!string.IsNullOrEmpty(gridQuery.SortColumn))
+                if (!string.IsNullOrEmpty(gridQuery.SortColumn) || gridQuery.SortOrder!.ToLower() == "desc" || gridQuery.SortOrder!.ToLower() == "asc")
                 {
                     if (gridQuery.SortOrder!.ToLower() == "desc")
                     {
-                        transactions = transactions.OrderByDescending(p => EF.Property<object>(p, gridQuery.SortColumn));
+                        transactions = transactions.OrderByDescending(p => EF.Property<object>(p, gridQuery.SortColumn!));
                     }
                     else
                     {
-                        transactions = transactions.OrderBy(p => EF.Property<object>(p, gridQuery.SortColumn));
+                        transactions = transactions.OrderBy(p => EF.Property<object>(p, gridQuery.SortColumn!));
                     }
                 }
+                else
+                {
+                    response.Message = "error input - dòng này nhap asc hoặc desc";
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return (response, 0, 0, 0);
+                }
+
+                
 
                 // Thực hiện truy vấn và trả về kết quả
                 var pagedTransactions = await transactions.ToListAsync();

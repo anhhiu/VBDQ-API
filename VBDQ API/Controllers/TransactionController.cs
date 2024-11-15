@@ -52,7 +52,7 @@ namespace VBDQ_API.Controllers
             });
         }
      
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> AddTransactionAsync(TransactionCreate model)
         {
             var transactionResponse = await service.AddTransactionAsync(model);

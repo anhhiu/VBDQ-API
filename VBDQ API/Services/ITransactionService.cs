@@ -12,7 +12,7 @@ namespace VBDQ_API.Services
         public Task<(TransactionDto?, Mess)> GetTransactionById(int id);
         public Task<Mess> DeleteTransaction(int id);
         Task<ServiceResponse<dynamic>?> AddTransactionAsync(TransactionCreate model);
-        Task<(ServiceResponse<dynamic>?, int skip, int limit, int total)> GetTransactionAsync(GridQuery gridQuery);
+        Task<(ServiceResponse<dynamic>?, int skip, int limit, int total)> GetTransactionAsync(GridQuery? gridQuery);
 
     }
 }

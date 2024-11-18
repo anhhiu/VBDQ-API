@@ -78,6 +78,53 @@ namespace VBDQ_API.Controllers
                 return StatusCode(500, mes.Status);
             }
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(string id)
+        {
+            var response = await service.GetUserById(id);
+            if(response != null)
+            {
+                return StatusCode(response.StatusCode, response);
+            }
+            return StatusCode(response!.StatusCode, response.Message);
+
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUserById(string id)
+        {
+            var response = await service.DeleteUserById(id);
+            if (response != null)
+            {
+                return StatusCode(response.StatusCode, response);
+            }
+            return StatusCode(response!.StatusCode, response.Message);
+
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUserById(UserUpdate model, string id)
+        {
+            var response = await service.UpdateUserById(model, id);
+            if (response != null)
+            {
+                return StatusCode(response.StatusCode, response);
+            }
+            return StatusCode(response!.StatusCode, response.Message);
+
+        }
+
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordRequet model)
+        {
+            var response = await service.ChangePassword(model);
+            if (response != null)
+            {
+                return StatusCode(response.StatusCode, response);
+            }
+            return StatusCode(response!.StatusCode, response.Message);
+        }
     }
 }
 

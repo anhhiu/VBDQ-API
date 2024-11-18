@@ -1,4 +1,5 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using VBDQ_API.Models;
 
@@ -9,10 +10,10 @@ namespace VBDQ_API.Dtos
         
         public string? ProductName { get; set; }
 
-        [JsonRequired]
+       
         public int CategoryId { get; set; }
         public string? Weight { get; set; }
-        [JsonRequired]
+       
         public int SupplierId { get; set; }
         public string? Description { get; set; }
 
@@ -73,10 +74,10 @@ namespace VBDQ_API.Dtos
     public class ProductCreate
     {
         public string? ProductName { get; set; }
-        [JsonRequired]
+        [Required]
         public int CategoryId { get; set; }
         public string? Weight { get; set; }
-        [JsonRequired]
+        [Required]
         public int SupplierId { get; set; }
         public string? Description { get; set; }
 

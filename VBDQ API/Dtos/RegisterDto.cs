@@ -18,4 +18,17 @@ namespace VBDQ_API.Dtos
 
         public string? Role { get; set; }
     }
+
+    public class UserUpdate
+    {
+        public string? FullName { get; set; }
+        [Required]
+        [EmailAddress]
+        public string? Email { get; set; }
+        [Phone]
+        public string? PhoneNumber { get; set; }
+        [Required]
+        public string? UserName { get; set; }
+       
+    }
 }

@@ -42,7 +42,7 @@ namespace VBDQ_API.Controllers
 
             if (response == null)
             {
-                return StatusCode(response!.StatusCode);
+                return StatusCode(response.StatusCode);
             }
 
             return Ok(new

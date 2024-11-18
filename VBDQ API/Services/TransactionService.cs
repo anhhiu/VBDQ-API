@@ -262,7 +262,7 @@ namespace VBDQ_API.Services
 
                 if (transactionStatus == StatusTransactions.DaHuy.ToLower().ToLower().Trim())
                 {
-                    paymentStatus =  StatusTransactions.DaHuy;
+                    paymentStatus = StatusTransactions.DaHuy;
                     transaction.UpdatedAt = DateTime.Now;
 
                     context.Transactions.Update(transaction);
@@ -306,7 +306,81 @@ namespace VBDQ_API.Services
             return response;
         }
 
-        public async Task<(ServiceResponse<dynamic>?, int skip, int limit, int total)> GetTransactionAsync(GridQuery gridQuery)
+        //public async Task<(ServiceResponse<dynamic>?, int skip, int limit, int total)> GetTransactionAsync(GridQuery gridQuery)
+        //{
+        //    var response = new ServiceResponse<dynamic>();
+        //    int totalItems = 0;
+        //    int skip = 0, limit = 0;
+
+        //    try
+        //    {
+        //        // Khởi tạo truy vấn
+        //        var transactions = context.Transactions.AsNoTracking()
+        //                                  .Include(p => p.Customer).Include(t => t.TransactionDetails)
+        //                                  .AsQueryable();
+
+        //        // Lọc (Filter)
+        //        if (!string.IsNullOrEmpty(gridQuery.Filter))
+        //        {
+        //            transactions = transactions.Where(p => p.Address!.ToLower().Contains(gridQuery.Filter.ToLower())
+        //                                                || p.TransactionStatus!.ToLower().Contains(gridQuery.Filter.ToLower())
+        //                                                || p.CustomerId! == int.Parse(gridQuery.Filter)
+        //                                                || p.Customer!.CustomerName!.Contains(gridQuery.Filter.ToLower())
+        //                                                || p.TransactionId == int.Parse(gridQuery.Filter)
+        //                                                || p.PaymentStatus!.ToLower().Contains(gridQuery.Filter.ToLower())
+        //                                                || p.PaymentMethod!.ToLower().Contains(gridQuery.Filter.ToLower()));
+        //        }
+
+        //        totalItems = await transactions.CountAsync();
+
+        //        // Nếu không nhập `PageNumber` hoặc `PageSize`, trả về toàn bộ dữ liệu
+        //        if (gridQuery.PageNumber > 0 && gridQuery.PageSize > 0)
+        //        {
+        //            skip = gridQuery.PageNumber;
+        //            limit = gridQuery.PageSize;
+
+        //            transactions = transactions.Skip((gridQuery.PageNumber - 1) * gridQuery.PageSize).Take(limit);
+        //        }
+
+        //        // Sắp xếp (Sort)
+        //        if (!string.IsNullOrEmpty(gridQuery.SortColumn) || gridQuery.SortOrder!.ToLower() == "desc" || gridQuery.SortOrder!.ToLower() == "asc")
+        //        {
+        //            if (gridQuery.SortOrder!.ToLower() == "desc")
+        //            {
+        //                transactions = transactions.OrderByDescending(p => EF.Property<object>(p, gridQuery.SortColumn!));
+        //            }
+        //            else
+        //            {
+        //                transactions = transactions.OrderBy(p => EF.Property<object>(p, gridQuery.SortColumn!));
+        //            }
+        //        }
+        //        else
+        //        {
+        //            response.Message = "error input - dòng này nhap asc hoặc desc";
+        //            response.StatusCode = (int)HttpStatusCode.BadRequest;
+        //            return (response, 0, 0, 0);
+        //        }
+
+        //        // Thực hiện truy vấn và trả về kết quả
+        //        var pagedTransactions = await transactions.ToListAsync();
+
+        //        response.Data = pagedTransactions;
+        //        response.Message = "Success";
+        //        response.StatusCode = (int)HttpStatusCode.OK;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        response.Data = new { };
+        //        response.Message = $"Error: {ex.Message}";
+        //        response.StatusCode = (int)HttpStatusCode.BadRequest;
+        //        return (response, 0, 0, 0);
+        //    }
+
+        //    return (response, skip, limit, totalItems);
+        //}
+
+
+        public async Task<(ServiceResponse<dynamic>?, int skip, int limit, int total)> GetTransactionAsync(GridQuery? gridQuery)
         {
             var response = new ServiceResponse<dynamic>();
             int totalItems = 0;
@@ -314,55 +388,63 @@ namespace VBDQ_API.Services
 
             try
             {
-                // Khởi tạo truy vấn
                 var transactions = context.Transactions.AsNoTracking()
-                                          .Include(p => p.Customer).Include(t => t.TransactionDetails)
+                                          .Include(p => p.Customer)
+                                          .Include(t => t.TransactionDetails)
                                           .AsQueryable();
 
                 // Lọc (Filter)
                 if (!string.IsNullOrEmpty(gridQuery.Filter))
                 {
-                    transactions = transactions.Where(p => p.Address!.ToLower().Contains(gridQuery.Filter.ToLower())
-                                                        || p.TransactionStatus!.ToLower().Contains(gridQuery.Filter.ToLower())
-                                                        || p.CustomerId! == int.Parse(gridQuery.Filter)
-                                                        || p.Customer!.CustomerName!.Contains(gridQuery.Filter.ToLower())
-                                                        || p.TransactionId == int.Parse(gridQuery.Filter)
-                                                        || p.PaymentStatus!.ToLower().Contains(gridQuery.Filter.ToLower())
-                                                        || p.PaymentMethod!.ToLower().Contains(gridQuery.Filter.ToLower()));
+                    if (int.TryParse(gridQuery.Filter, out int filterInt))
+                    {
+                        transactions = transactions.Where(p => p.CustomerId == filterInt || p.TransactionId == filterInt);
+                    }
+
+                    transactions = transactions.Where(p =>
+                           (p.Address != null && p.Address.ToLower().Contains(gridQuery.Filter.ToLower()))
+                        || (p.TransactionStatus != null && p.TransactionStatus.ToLower().Contains(gridQuery.Filter.ToLower()))
+                        || (p.Customer != null && p.Customer.CustomerName != null && p.Customer.CustomerName.ToLower().Contains(gridQuery.Filter.ToLower()))
+                        || (p.PaymentStatus != null && p.PaymentStatus.ToLower().Contains(gridQuery.Filter.ToLower()))
+                        || (p.PaymentMethod != null && p.PaymentMethod.ToLower().Contains(gridQuery.Filter.ToLower()))
+                    );
                 }
 
                 totalItems = await transactions.CountAsync();
 
-                // Nếu không nhập `PageNumber` hoặc `PageSize`, trả về toàn bộ dữ liệu
+                // Phân trang
                 if (gridQuery.PageNumber > 0 && gridQuery.PageSize > 0)
                 {
                     skip = gridQuery.PageNumber;
                     limit = gridQuery.PageSize;
-
                     transactions = transactions.Skip((gridQuery.PageNumber - 1) * gridQuery.PageSize).Take(limit);
                 }
 
                 // Sắp xếp (Sort)
-                if (!string.IsNullOrEmpty(gridQuery.SortColumn) || gridQuery.SortOrder!.ToLower() == "desc" || gridQuery.SortOrder!.ToLower() == "asc")
+                if (!string.IsNullOrEmpty(gridQuery.SortColumn) && !string.IsNullOrEmpty(gridQuery.SortOrder))
                 {
-                    if (gridQuery.SortOrder!.ToLower() == "desc")
+                    if (!typeof(Transaction).GetProperties().Any(prop => prop.Name.Equals(gridQuery.SortColumn, StringComparison.OrdinalIgnoreCase)))
                     {
-                        transactions = transactions.OrderByDescending(p => EF.Property<object>(p, gridQuery.SortColumn!));
+                        response.Message = "Invalid SortColumn.";
+                        response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        return (response, 0, 0, 0);
                     }
-                    else
-                    {
-                        transactions = transactions.OrderBy(p => EF.Property<object>(p, gridQuery.SortColumn!));
-                    }
+
+                    transactions = gridQuery.SortOrder.ToLower() == "desc"
+                        ? transactions.OrderByDescending(p => EF.Property<object>(p, gridQuery.SortColumn))
+                        : transactions.OrderBy(p => EF.Property<object>(p, gridQuery.SortColumn));
                 }
-                else
+
+
+                var pagedTransactions = await transactions.ToListAsync();
+
+                if (totalItems == 0)
                 {
-                    response.Message = "error input - dòng này nhap asc hoặc desc";
+                    response.Data = pagedTransactions;
+                    response.Message = "khong co giao dich nao";
                     response.StatusCode = (int)HttpStatusCode.BadRequest;
                     return (response, 0, 0, 0);
                 }
-
-                // Thực hiện truy vấn và trả về kết quả
-                var pagedTransactions = await transactions.ToListAsync();
 
                 response.Data = pagedTransactions;
                 response.Message = "Success";
@@ -370,13 +452,15 @@ namespace VBDQ_API.Services
             }
             catch (Exception ex)
             {
+
                 response.Data = new { };
                 response.Message = $"Error: {ex.Message}";
-                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return (response, 0, 0, 0);
             }
 
             return (response, skip, limit, totalItems);
         }
+
     }
 }

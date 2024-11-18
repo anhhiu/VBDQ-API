@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using VBDQ_API.Conmon;
 using VBDQ_API.Data;
 using VBDQ_API.Dtos;
 using VBDQ_API.Models;
@@ -24,7 +25,7 @@ namespace VBDQ_API.Services
         {
             try
             {
-                if(customerPp == null)
+                if (customerPp == null)
                     return (null, new Mess { Error = "loi roi", Status = "Đầu vào không hợp lệ" });
 
                 var customer = new Customer()
@@ -40,12 +41,13 @@ namespace VBDQ_API.Services
 
                 return (customer, new Mess { Error = null, Status = "success" });
 
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
-                return (null, new Mess { Error = "loi roi", Status = ex.Message});
+                return (null, new Mess { Error = "loi roi", Status = ex.Message });
             }
 
-            
+
         }
 
         public async Task<Mess> DeleteCustomer(int id)
@@ -65,15 +67,15 @@ namespace VBDQ_API.Services
         {
             try
             {
-               var customer = await context.Customers
-                    .Include(c => c.Transactions)
-                    .ThenInclude(C => C.TransactionDetails)
-                    .OrderByDescending(c => c.CustomerId)
-                    .ToListAsync();
+                var customer = await context.Customers
+                     .Include(c => c.Transactions)
+                     .ThenInclude(C => C.TransactionDetails)
+                     .OrderByDescending(c => c.CustomerId)
+                     .ToListAsync();
 
                 var customerClient = mapper.Map<IEnumerable<CustomerDto>>(customer);
 
-                return (customerClient, new Mess {Error = null, Status = "Sucess" });
+                return (customerClient, new Mess { Error = null, Status = "Sucess" });
             }
             catch (Exception ex)
             {
@@ -101,26 +103,50 @@ namespace VBDQ_API.Services
             return (customers, new Mess { Error = null, Status = "sucess" });
         }
 
-        public async Task<(IEnumerable<Customer>, Mess)> GetAllCustomerPT(int skip, int limit)
+        public async Task<ServiceResponse<dynamic>> GetAllCustomerPT(int skip, int limit)
         {
+            var response = new ServiceResponse<dynamic>();
             try
             {
-                var customer = await context.Customers.OrderByDescending(c => c.CustomerId)
-                                                      .Skip((skip -1)*limit)
-                                                      .Take(limit)
-                                                      .ToListAsync();
+                var query = context.Customers.AsNoTracking().OrderByDescending(c => c.CustomerId).AsQueryable();
+                var (total, pNumber, pSize) = (0, 0, 0);
+                total = await query.CountAsync();
+                if (skip > 0 && limit > 0)
+                {
+                    pNumber = skip;
+                    pSize = limit;
+                    query = query.Skip((skip - 1) * limit).Take(limit);
+                }
+                var customer = await query.ToListAsync();
 
                 if (customer == null)
                 {
-                    return (null, new Mess { Error = "khong co gi", Status = "Khong co khac hang nao" });
+                    response.Data = new { };
+                    response.Message = "khong co gi";
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return response;
                 }
 
-                return (customer, new Mess { Error = null, Status = "sucess"});
+                var resualt = new
+                {
+                    customer,
+                    total,
+                    skip,
+                    limit,
+                };
 
+                response.Data = resualt;
+                response.Message = "sucess";
+                response.StatusCode = (int)HttpStatusCode.OK;
+                return response;
 
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
-                return (null, new Mess {Error = "loi roi", Status = ex.Message });
+                response.Data = new { };
+                response.Message = "error: " + ex.Message;
+                response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                return response;
             }
         }
 
@@ -128,7 +154,7 @@ namespace VBDQ_API.Services
         {
             var customer = await context.Customers
                 .Include(c => c.Transactions)
-                .ThenInclude (C => C.TransactionDetails)
+                .ThenInclude(C => C.TransactionDetails)
                 .FirstOrDefaultAsync(c => c.CustomerId == id);
 
             if (customer == null)
@@ -162,7 +188,7 @@ namespace VBDQ_API.Services
             {
                 return (customer, new Mess { Error = "khong tim thay", Status = "khong co khac hang nao co ten nhu the" });
             }
-            return (customer, new Mess {Error = null, Status = "sucess" });
+            return (customer, new Mess { Error = null, Status = "sucess" });
         }
 
         public async Task<(Customer, Mess)> UpdateCustomer(CustomerPP customerDto, int id)

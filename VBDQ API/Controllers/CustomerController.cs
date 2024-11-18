@@ -161,12 +161,13 @@ namespace VBDQ_API.Controllers
         [HttpGet("customerPt")]
         public async Task<IActionResult> GetCustomerPT(int skip, int limit)
         {
-            var (cus, mes) = await service.GetAllCustomerPT(skip, limit);
-            if (mes.Error == null)
+            var respone = await service.GetAllCustomerPT(skip, limit);
+
+            if (respone != null)
             {
-                return Ok(cus);
+                return StatusCode(respone.StatusCode, respone);
             }
-            return StatusCode(400, mes.Status);
+            return StatusCode(respone.StatusCode, respone.Message);
         }
     }
 }

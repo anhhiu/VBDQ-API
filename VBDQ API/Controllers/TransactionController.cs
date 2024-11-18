@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 using VBDQ_API.Conmon;
+using VBDQ_API.Data;
 using VBDQ_API.Dtos;
-using VBDQ_API.Orther;
 using VBDQ_API.Services;
 
 namespace VBDQ_API.Controllers
@@ -13,10 +13,12 @@ namespace VBDQ_API.Controllers
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService service;
+        private readonly MyDbcontext _context;
 
-        public TransactionController(ITransactionService service)
+        public TransactionController(ITransactionService service, MyDbcontext context)
         {
             this.service = service;
+            _context = context;
         }
 
         [HttpGet]
@@ -34,11 +36,11 @@ namespace VBDQ_API.Controllers
         }
 
         [HttpGet("Gridquery")]
-        public async Task<IActionResult> GetAllTransaction([FromQuery]GridQuery gridQuery)
+        public async Task<IActionResult> GetAllTransaction([FromQuery] GridQuery gridQuery)
         {
-           var( response, skip, page, total) = await service.GetTransactionAsync(gridQuery);
+            var (response, skip, page, total) = await service.GetTransactionAsync(gridQuery);
 
-            if(response == null)
+            if (response == null)
             {
                 return StatusCode(response!.StatusCode);
             }
@@ -51,7 +53,36 @@ namespace VBDQ_API.Controllers
                 Total = total
             });
         }
-     
+
+        [HttpGet("Projection")]
+
+        public async Task<IActionResult> GetTran()
+        {
+            var response = await _context.Transactions.AsNoTracking().Select(t => new
+            {
+                t.TransactionId,
+                t.TransactionDate,
+                t.PaymentStatus,
+                t.PhoneNumber,
+                CustomerName = t.Customer != null ? t.Customer.CustomerName : null,
+                TransactionDetails =  t.TransactionDetails.Select(d => new
+                {
+                    d.ProductId,
+                    d.Discount,
+                    d.UnitPrice,
+                    d.Quantity
+                }).ToList()
+            }).ToListAsync();
+
+            if(response == null  || response.Count == 0)
+            {
+                return NotFound("loi ");
+            }
+
+            return Ok( response);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> AddTransactionAsync(TransactionCreate model)
         {

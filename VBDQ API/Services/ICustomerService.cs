@@ -1,4 +1,5 @@
-﻿using VBDQ_API.Dtos;
+﻿using VBDQ_API.Conmon;
+using VBDQ_API.Dtos;
 using VBDQ_API.Models;
 using VBDQ_API.Orther;
 
@@ -16,6 +17,6 @@ namespace VBDQ_API.Services
 
         public Task<(IEnumerable<Customer>, Mess)> GetAllCustomerByName(string name);
 
-        public Task<(IEnumerable<Customer>, Mess)> GetAllCustomerPT(int skip, int limit);
+        public Task<ServiceResponse<dynamic>> GetAllCustomerPT(int skip, int limit);
     }
 }

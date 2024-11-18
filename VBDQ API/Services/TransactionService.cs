@@ -6,7 +6,6 @@ using VBDQ_API.Data;
 using VBDQ_API.Dtos;
 using VBDQ_API.Models;
 using VBDQ_API.Orther;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace VBDQ_API.Services
 {
@@ -111,7 +110,7 @@ namespace VBDQ_API.Services
                     Address = model.Address,
                     PhoneNumber = model.PhoneNumber,
                     TotalAmount = totalPrice - shipfree,
-                    PaymentStatus = model.PaymentStatus,
+                    PaymentStatus = StatusTransactions.ChuaThanhToan,
                     PaymentMethod = model.PaymentMethod,
                     TransactionStatus = transactionStatus,
                     ShippingFee = shipfree,
@@ -211,7 +210,7 @@ namespace VBDQ_API.Services
         public async Task<ServiceResponse<dynamic>?> UpdateTransactionAsync(TransactionUpdate model, int id)
         {
             var response = new ServiceResponse<dynamic>();
-            string paymentStatus = "";
+            string paymentStatus = StatusTransactions.ChuaThanhToan;
             string transactionStatus = model.TransactionStatus!.ToLower().Trim();
             // kiem tra null
             if (model == null)
@@ -242,7 +241,7 @@ namespace VBDQ_API.Services
                 return response;
             }
 
-            if(transaction.TransactionStatus == StatusTransactions.DaHuy.ToLower().Trim())
+            if (transaction.TransactionStatus == StatusTransactions.DaHuy.ToLower().Trim())
             {
                 response.Data = transaction;
                 response.StatusCode = (int)HttpStatusCode.OK;
@@ -252,7 +251,7 @@ namespace VBDQ_API.Services
 
 
             if (transactionStatus == StatusTransactions.DangGiao.ToLower().Trim()
-                || transactionStatus == StatusTransactions.HoanThanh.ToLower().Trim() 
+                || transactionStatus == StatusTransactions.HoanThanh.ToLower().Trim()
                 || transactionStatus == StatusTransactions.DaHuy.ToLower().Trim())
             {
                 if (transactionStatus == StatusTransactions.HoanThanh.ToLower().Trim())
@@ -261,9 +260,9 @@ namespace VBDQ_API.Services
 
                 }
 
-                if(transactionStatus == StatusTransactions.DaHuy.ToLower().ToLower().Trim())
+                if (transactionStatus == StatusTransactions.DaHuy.ToLower().ToLower().Trim())
                 {
-                    paymentStatus = " Da Huy";
+                    paymentStatus =  StatusTransactions.DaHuy;
                     transaction.UpdatedAt = DateTime.Now;
 
                     context.Transactions.Update(transaction);
@@ -361,8 +360,6 @@ namespace VBDQ_API.Services
                     response.StatusCode = (int)HttpStatusCode.BadRequest;
                     return (response, 0, 0, 0);
                 }
-
-                
 
                 // Thực hiện truy vấn và trả về kết quả
                 var pagedTransactions = await transactions.ToListAsync();

@@ -68,9 +68,6 @@ namespace VBDQ_API.Services
             {
                 return new Mess { Error = "loi roi", Status = ex.Message };
             }
-
-
-
         }
 
         public async Task<IEnumerable<Product>?> GetAllProduct()
@@ -83,91 +80,24 @@ namespace VBDQ_API.Services
 
         public async Task<(List<Product>?, int page, int limit, int total, Mess)> GetAllProduct(int page, int limit)
         {
-            var product = await context.Products
-                .OrderBy(x => x.ProductId)
-                 .Skip((page-1)*limit)
-                 .Take(limit)
-                 .ToListAsync();
+            var query = context.Products.OrderByDescending(p => p.ProductId).AsQueryable();
+
+            
+            if(page > 0 && limit > 0)
+            {
+                query = query.Skip((page -1)*limit).Take(limit);
+            }
+
+            var product = await query.ToListAsync();
             int total = await context.Products.CountAsync();
 
             if (product.Count == 0)
             {
-                return (null!,0,0,0, new Mess { Error = string.Empty, Status = "khong co kk" });
+                return (null!,total,0,0, new Mess { Error = string.Empty, Status = "khong co kk" });
             }
-
             return (product, total, limit, page, new Mess { Error = null!, Status ="sucess"});
                 
         }
-
-        //public async Task<(List<ProductDtoName>, Mess)> GetAllProductNamehihi(string? productName, string? categoryName, int skip, int limit)
-        //{
-        //    var query = context.Products.AsQueryable();
-
-        //    // Nếu productName có giá trị, thêm điều kiện vào truy vấn
-        //    if (!string.IsNullOrEmpty(productName))
-        //    {
-        //        query = query.Where(x => x.ProductName.ToLower().Contains(productName.ToLower()));
-        //    }
-
-        //    // Nếu categoryName có giá trị, thêm điều kiện vào truy vấn
-        //    if (!string.IsNullOrEmpty(categoryName))
-        //    {
-        //        query = query.Where(x => x.Category.Name.ToLower().Contains(categoryName.ToLower()));
-        //    }
-
-
-        //    var product = await query.Select(x => new ProductDtoName
-        //    {
-        //        ProductName = x.ProductName,
-        //        CategoryName = x.Category.Name,
-        //        Description = x.Description,
-        //        Quantity = x.Quantity,
-        //        Discount = x.Discount,
-        //        Weight = x.Weight
-
-        //    })
-        //                                        .Skip(limit * (skip - 1))
-        //                                        .Take(limit)
-        //                                        .ToListAsync();
-
-
-        //    return (product, new Mess { Error = null, Status = "ok" });
-
-        //}
-
-        //public async Task<(List<Product>, Mess)> GetAllProductNamehihi(string? productName, string? categoryName, int skip, int limit)
-        //{
-        //    var query = context.Products.AsQueryable();
-
-        //    // Nếu productName có giá trị, thêm điều kiện vào truy vấn
-        //    if (!string.IsNullOrEmpty(productName))
-        //    {
-        //        query = query.Where(x => x.ProductName.ToLower().Contains(productName.ToLower()));
-        //    }
-
-        //    // Nếu categoryName có giá trị, thêm điều kiện vào truy vấn
-        //    if (!string.IsNullOrEmpty(categoryName))
-        //    {
-        //        query = query.Where(x => x.Category.Name.ToLower().Contains(categoryName.ToLower()));
-        //    }
-
-        //    // Lấy sản phẩm sau khi đã áp dụng các điều kiện tìm kiếm
-        //    var product = await query
-        //        .Select(x => new ProductDtoName
-        //        {
-        //            ProductName = x.ProductName,
-        //            CategoryName = x.Category.Name ?? "null",
-        //            Description = x.Description,
-        //            Quantity = x.Quantity,
-        //            Discount = x.Discount,
-        //            Weight = x.Weight
-        //        })
-        //        .Skip(limit * (skip - 1))
-        //        .Take(limit)
-        //        .ToListAsync();
-
-        //    return (product, new Mess { Error = null, Status = "ok" });
-        //}
 
         public async Task<(List<Product>?, int page, int limit, int total, Mess)> GetALlProductNamePage(string? name, int page, int limit)
         {
@@ -178,81 +108,22 @@ namespace VBDQ_API.Services
 
             int total = await query.CountAsync();
 
-            var product = await query.OrderBy(x => x.ProductId)
-                                     .Skip((page - 1) * limit)
-                                     .Take(limit)
-                                     .ToListAsync();
+            if(page > 0 && limit > 0)
+            {
+                query = query.Skip((page - 1) * limit).Take(limit);
+            }
+
+            var product = await query.ToListAsync();
 
             if (product.Count == 0)
             {
-                return (null, 0, 0, 0, new Mess { Error = "khong co gi", Status = "khong co gi ca" });
+                return (null, total, limit, page, new Mess { Error = "khong co gi", Status = "khong co gi ca" });
             }
             else
             {
                 return (product, total,limit, page  , new Mess { Error = null, Status = "sucess" });
             }
         }
-
-
-        //public async Task<(IEnumerable<CategoryListProduct>, Mess)> GetCategoriesNameList()
-        //{
-        //    var category = await context.Categories.GroupJoin(context.Products,
-        //        cate => cate.CategoryId, prod => prod.CategoryId
-        //        , (cate, prod) => new
-        //        {
-        //            Cate = cate.Name,
-        //            Prod = prod.ToList(),
-        //        })
-        //        .Select(x => new CategoryListProduct
-        //        {
-        //            CateName = x.Cate,
-        //            products = x.Prod.ToList(),
-        //        })
-        //        .ToListAsync();
-
-        //    if (category.Count == 0)
-        //    {
-        //        return (null, new Mess { Error = "khong co", Status = "khong co dau haha" });
-        //    }
-        //    else
-        //    {
-        //        return (category, new Mess { Error = null, Status = "sucess" });
-        //    }
-
-        //}
-
-        //public async Task<(IEnumerable<CateProDto>, Mess)> GetCatePro()
-        //{
-        //    var catepro = await context.Products
-        //                        .Join(context.Categories,
-        //                        product => product.CategoryId,
-        //                        categories => categories.CategoryId,
-        //                        (product, categories) => new
-        //                            {
-        //                                CategoryName = categories.Name,
-        //                                ProductName = product.ProductName,
-        //                                Quantity = product.Quantity,
-        //                                Price = product.ProductPrice,
-        //                            })
-        //                        .Select(x => new CateProDto
-        //                            {
-        //                                NameCate = x.CategoryName,
-        //                                NamePro = x.ProductName,
-        //                                Quantity = x.Quantity,
-        //                                Price = x.Price,
-        //                            })
-        //                        .ToListAsync();
-        //    if(catepro.Count == 0)
-        //    {
-        //        return (null, new Mess { Error = "khong co", Status = "khong co dau haha" });
-        //    }
-        //    else
-        //    {
-        //        return (catepro, new Mess { Error = null, Status = "sucess" });
-        //    }
-        //}
-
-
         public async Task<(Product?, Mess)> GetProductById(int id)
         {
             try
@@ -310,13 +181,14 @@ namespace VBDQ_API.Services
                 {
                     return (null, new Mess { Error = "loi roi", Status = $"Không tìm thấy sản phẩm có Id = {id}" });
                 }
-                    
+                   
 
                 //mapper.Map(productDto, product);
                 product.ProductName = productDto.ProductName;
                 product.ProductPrice = productDto.ProductPrice;
                 product.Discount = productDto.Discount;
                 product.Quantity = productDto.Quantity;
+                product.Available = productDto.Available;
               
 
                 await context.SaveChangesAsync();
@@ -331,30 +203,5 @@ namespace VBDQ_API.Services
             }
 
         }
-
-        //Task<IEnumerable<Product>> IProductService.GetAllProduct()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //Task<(Product, Mess)> IProductService.AddProduct(ProductDto model)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //Task<IEnumerable<Product>> IProductService.GetAllProduct()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //Task<(Product, Mess)> IProductService.GetProductById(int id)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //Task<(Product, Mess)> IProductService.UpdatedProduct(ProductDto model, int id)
-        //{
-        //    throw new NotImplementedException();
-        //}
     }
 }

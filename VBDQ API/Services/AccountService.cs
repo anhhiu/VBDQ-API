@@ -114,9 +114,11 @@ namespace VBDQ_API.Services
                 }
 
                 await userManager.AddToRoleAsync(use, role);
+
+                return (result, new Mess { Error = null, Status = "Sucess" });
             }
 
-            return (result, new Mess { Error = null, Status = "Sucess"});
+            return (null, new Mess { Error = string.Empty, Status = "loi roi"});
         }
     }
 }

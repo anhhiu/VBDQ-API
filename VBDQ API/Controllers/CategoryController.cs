@@ -20,50 +20,53 @@ namespace VBDQ_API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllCategory()
         {
-            var (category, mes) = await sevice.GetAllCategory();
+            var response = await sevice.GetAllCategoryAsync();
 
-            if (mes.Error != null) return BadRequest(mes.Status);
+            if (response != null) return StatusCode(response.StatusCode, response);
             
-            return Ok(category);    
+            return StatusCode(response.StatusCode, response.Message);    
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetCategoryById(int id)
         {
-            var (category, mes) = await sevice.GetCategoryById(id);
+            var response = await sevice.GetCategoryByIdAsync(id);
 
-            if (mes.Error != null) return NotFound(mes.Status);
+            if (response != null) return StatusCode(response.StatusCode, response);
 
-            return Ok(category);
+            return StatusCode(response.StatusCode, response.Message);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCategory(CategoryDto categorydto)
+        public async Task<IActionResult> AddCategory(CategoryCreate model)
         {
-            var (category, mes) = await sevice.AddCategory(categorydto);
+            var response = await sevice.CreateCategoryAsync(model);
 
+            if (response != null) return StatusCode(response.StatusCode, response);
 
-            return Ok(category);
+            return StatusCode(response.StatusCode, response.Message);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
 
-        public async Task<IActionResult> UpdateCategory(CategoryDto categoryDto, int id)
+        public async Task<IActionResult> UpdateCategory(CategoryUpdate model, int id)
         {
-            var (category, mes) = await sevice.UpdatedCategory(categoryDto, id);
+            var response = await sevice.UpdateCategoryAsync(model, id);
 
-            if (mes.Error != null) return BadRequest(mes.Status);
-            return Ok(category);
+            if (response != null) return StatusCode(response.StatusCode, response);
+
+            return StatusCode(response.StatusCode, response.Message);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
 
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            var mes = await sevice.DeleteCategory(id);
+            var response = await sevice.DeleteCategoryByIdAsync(id);
 
-            if (mes.Error != null) { return BadRequest(mes.Status); }
-            return Ok(mes.Status);
+            if (response != null) return StatusCode(response.StatusCode, response);
+
+            return StatusCode(response.StatusCode, response.Message);
         }
 
 

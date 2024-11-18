@@ -18,53 +18,64 @@ namespace VBDQ_API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllSupplier()
         {
-            var (supplier, mes) = await service.GetAllSupplier();
+            var response = await service.GetAllSupplierAsync();
 
-           if (mes.Error == null) return Ok(supplier);
+           if (response != null) return Ok(response);
 
-           return BadRequest(mes.Status);
+           return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("page")]
+        public async Task<IActionResult> GetAllSupplier(int PageNumber, int PageSize)
+        {
+            var response = await service.GetAllSupplierAsync2(PageNumber , PageSize);
+
+            if (response != null) return Ok(response);
+
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpPost]
 
-        public async Task<IActionResult> AddSupplier(SupplierDto supplierDto)
+        public async Task<IActionResult> AddSupplier(SuppllierCreate model)
         {
-            var (supplier, mes) = await service.AddSupplier(supplierDto);
+            var response = await service.CreateSupplierAsync(model);
 
-            if (mes.Error == null) return Ok(supplierDto);
+            if (response != null) return Ok(response);
 
-            return BadRequest(mes.Status);
+            return StatusCode(response.StatusCode, response);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetSupplierById(int id)
         {
-            var (supplier, mes) = await service.GetSupplierById(id);
+            var response = await service.GetSupplierByIdAsync(id);
 
-            if (mes.Error == null) return Ok(supplier);
+            if (response != null) return Ok(response);
 
-            return BadRequest(mes.Status);
+            return StatusCode(response.StatusCode, response);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
 
-        public async Task<IActionResult> UpdateSupplier(SupplierDto supplierDto, int id)
+        public async Task<IActionResult> UpdateSupplier(SuppllierUpdate model, int id)
         {
-            var (supplier, mes) = await service.UpdatedSupplier(supplierDto, id);
+            var response = await service.UpdateSupplierAsync(model, id);
 
-            if (mes.Error == null) return Ok(supplierDto);
+            if (response != null) return Ok(response);
 
-            return BadRequest(mes.Status);
+            return StatusCode(response.StatusCode, response);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
 
         public async Task<IActionResult> DeleteSupplier(int id)
         {
-            var mes = await service.DeleteSupplier(id);
+            var response = await service.DeleteSupplierByIdAsync(id);
 
-            if (mes.Error == null) return Ok(mes.Status);
-            return BadRequest(mes.Status);
+            if (response != null) return Ok(response);
+
+            return StatusCode(response.StatusCode, response);
         }
 
     }

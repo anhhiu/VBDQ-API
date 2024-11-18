@@ -24,7 +24,7 @@ namespace VBDQ_API.Controllers
 
             if (response != null) return StatusCode(response.StatusCode, response);
             
-            return StatusCode(response.StatusCode, response.Message);    
+            return StatusCode(response!.StatusCode, response.Message);    
         }
 
         [HttpGet("{id:int}")]
@@ -34,7 +34,7 @@ namespace VBDQ_API.Controllers
 
             if (response != null) return StatusCode(response.StatusCode, response);
 
-            return StatusCode(response.StatusCode, response.Message);
+            return StatusCode(response!.StatusCode, response.Message);
         }
 
         [HttpPost]
@@ -44,7 +44,7 @@ namespace VBDQ_API.Controllers
 
             if (response != null) return StatusCode(response.StatusCode, response);
 
-            return StatusCode(response.StatusCode, response.Message);
+            return StatusCode(response!.StatusCode, response.Message);
         }
 
         [HttpPut("{id:int}")]
@@ -55,7 +55,7 @@ namespace VBDQ_API.Controllers
 
             if (response != null) return StatusCode(response.StatusCode, response);
 
-            return StatusCode(response.StatusCode, response.Message);
+            return StatusCode(response!.StatusCode, response.Message);
         }
 
         [HttpDelete("{id:int}")]
@@ -66,7 +66,7 @@ namespace VBDQ_API.Controllers
 
             if (response != null) return StatusCode(response.StatusCode, response);
 
-            return StatusCode(response.StatusCode, response.Message);
+            return StatusCode(response!.StatusCode, response.Message);
         }
 
 

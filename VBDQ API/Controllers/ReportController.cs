@@ -117,7 +117,7 @@ namespace VBDQ_API.Controllers
         [HttpGet("total-discount")]
         public async Task<IActionResult> GetTotalDiscount()
         {
-            var dis =context.TransactionDetails.Sum(x => x.Discount);
+            var dis = context.TransactionDetails.Sum(x => x.Discount);
             return Ok(dis);
         }
 
@@ -146,8 +146,8 @@ namespace VBDQ_API.Controllers
                                             .Select(x => new ProductCS
                                             {
                                                 Id = x.ProductId,
-                                                CategoryName = x.Category.Name,
-                                                SupplierName = x.Supplier.SupplierName,
+                                                CategoryName = x.Category!.Name,
+                                                SupplierName = x.Supplier!.SupplierName,
                                                 ContactName = x.Supplier.ContactName,
                                                 Quantity = x.Quantity,
                                                 Price = x.ProductPrice,

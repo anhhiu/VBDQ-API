@@ -28,7 +28,7 @@ namespace VBDQ_API.Services
             this.roleManager = roleManager;
         }
 
-        public async Task<(IEnumerable<IdentityRole>, Mess)> GetRoler()
+        public async Task<(IEnumerable<IdentityRole>?, Mess)> GetRoler()
         {
             var role =await roleManager.Roles.ToListAsync();
 
@@ -42,7 +42,7 @@ namespace VBDQ_API.Services
             }
         }
 
-        public async Task<(IEnumerable<IdentityUser>, Mess)> GetUsers()
+        public async Task<(IEnumerable<IdentityUser>?, Mess)> GetUsers()
         {
             var users = await userManager.Users.ToListAsync();
 
@@ -58,8 +58,8 @@ namespace VBDQ_API.Services
 
         public async Task<(string, Mess)> Login(LoginDto model)
         {
-            var user = await userManager.FindByNameAsync(model.UserName);
-            var passwordValid = await userManager.CheckPasswordAsync(user, model.Password);
+            var user = await userManager.FindByNameAsync(model.UserName!);
+            var passwordValid = await userManager.CheckPasswordAsync(user!, model.Password!);
 
             if ( user == null || !passwordValid )
             {
@@ -68,7 +68,7 @@ namespace VBDQ_API.Services
 
             var authClaim = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, model.UserName),
+                new Claim(ClaimTypes.Name, model.UserName!),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -78,8 +78,8 @@ namespace VBDQ_API.Services
             {
                 authClaim.Add(new Claim(ClaimTypes.Role, role.ToString()));
             }
-
-            var newKeys = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
+            var skey = configuration["JWT:Secret"];
+            var newKeys = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(skey!));
 
             var token = new JwtSecurityToken(
                 issuer: configuration["JWT:ValidIssuer"],
@@ -92,7 +92,7 @@ namespace VBDQ_API.Services
             return (tokenStr, new Mess { Error = null, Status = "Sucess" });
         }
 
-        public async Task<(IdentityResult, Mess)> Register(RegisterDto model)
+        public async Task<(IdentityResult?, Mess)> Register(RegisterDto model)
         {
             var use = new ApplicationUser
             {
@@ -101,7 +101,7 @@ namespace VBDQ_API.Services
                 FullName = model.FullName,
             };
     
-            var result = await userManager.CreateAsync(use, model.Password);
+            var result = await userManager.CreateAsync(use, model.Password!);
 
             if (result.Succeeded)
             {

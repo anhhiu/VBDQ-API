@@ -22,7 +22,7 @@ namespace VBDQ_API.Services
 
 
 
-        public async Task<(CategoryDto, Mess)> AddCategory(CategoryDto categoryDto)
+        public async Task<(CategoryDto?, Mess)> AddCategory(CategoryDto categoryDto)
         {
             var category = mapper.Map<Category>(categoryDto);
 
@@ -101,7 +101,7 @@ namespace VBDQ_API.Services
 
         }
 
-        public async Task<(IEnumerable<CategoryDto>, Mess)> GetAllCategory()
+        public async Task<(IEnumerable<CategoryDto>?, Mess)> GetAllCategory()
         {
             try
             {
@@ -141,7 +141,7 @@ namespace VBDQ_API.Services
             return response;
         }
 
-        public async Task<(CategoryDto, Mess)> GetCategoryById(int id )
+        public async Task<(CategoryDto?, Mess)> GetCategoryById(int id )
         {
             var category = await context.Categories.Include(c => c.Products)
                 .FirstOrDefaultAsync(c => c.CategoryId == id);
@@ -206,7 +206,7 @@ namespace VBDQ_API.Services
             return response;
         }
 
-        public async Task<(CategoryDto, Mess)> UpdatedCategory(CategoryDto categoryDto, int id)
+        public async Task<(CategoryDto?, Mess)> UpdatedCategory(CategoryDto categoryDto, int id)
         {
             var category = await context.Categories.FirstOrDefaultAsync(c => c.CategoryId == id);
 

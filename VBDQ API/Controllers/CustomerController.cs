@@ -112,7 +112,7 @@ namespace VBDQ_API.Controllers
                 .SelectMany(x => x.Transaction.Select(trans => new
                 {
                     Customer = x.customerName,
-                    Phone = trans.PhoneNumber,
+                    Phone = trans!.PhoneNumber,
                     Address = trans.Address,
                     PayMent = trans != null ? trans.PaymentMethod : "quyen me mat chua dien" ,
                 })).ToListAsync();
@@ -167,7 +167,7 @@ namespace VBDQ_API.Controllers
             {
                 return StatusCode(respone.StatusCode, respone);
             }
-            return StatusCode(respone.StatusCode, respone.Message);
+            return StatusCode(respone!.StatusCode, respone.Message);
         }
     }
 }

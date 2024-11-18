@@ -17,7 +17,7 @@ namespace VBDQ_API.Services
             this.context = context;
         }
 
-        public async Task<(List<DailyRevenueDto>, Mess)> GetDailyRevenuaAsnyc()
+        public async Task<(List<DailyRevenueDto>?, Mess)> GetDailyRevenuaAsnyc()
         {
             try
             {
@@ -45,7 +45,7 @@ namespace VBDQ_API.Services
             }
         }
 
-        public async Task<(List<MonthRevenueDto>, Mess)> GetMonthRevenuaAsnyc()
+        public async Task<(List<MonthRevenueDto>?, Mess)> GetMonthRevenuaAsnyc()
         {
             try
             {
@@ -78,7 +78,7 @@ namespace VBDQ_API.Services
         }
 
         // lên sử dụng  cách truy vấn này, hiệu suất sẽ ok hơn
-        public async Task<(List<TopProductDto>, Mess)> GetTopSelingProduct()
+        public async Task<(List<TopProductDto>?, Mess)> GetTopSelingProduct()
         {
             var topProduct = await context.TransactionDetails
                                     .Include(x => x.Product)
@@ -86,7 +86,7 @@ namespace VBDQ_API.Services
                                     .Select(g => new TopProductDto
                                     {
                                         ProductId = g.Key,
-                                        ProductName = g.First().Product.ProductName ?? "null",
+                                        ProductName = g.First().Product!.ProductName ?? "null",
                                         TotalSold = g.Sum(x => x.Quantity),
                                         Revenue = g.Sum(x => x.TotalPrice)
                                     })
@@ -96,7 +96,7 @@ namespace VBDQ_API.Services
             return(topProduct, new Mess { Error = null, Status = "sucess" });
         }
         
-        public async Task<(List<TopProductDto>, Mess)> GetTopSelingProduct1()
+        public async Task<(List<TopProductDto>?, Mess)> GetTopSelingProduct1()
         {
             try
             {
@@ -129,7 +129,7 @@ namespace VBDQ_API.Services
             }
         }
 
-        public async Task<(List<YearRevenueDto>, Mess)> GetYearRevenuaAsnyc()
+        public async Task<(List<YearRevenueDto>?, Mess)> GetYearRevenuaAsnyc()
         {
             try
             {

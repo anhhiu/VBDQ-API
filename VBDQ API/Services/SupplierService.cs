@@ -21,7 +21,7 @@ namespace VBDQ_API.Services
             this.context = context;
             this.mapper = mapper;
         }
-        public async Task<(SupplierDto, Mess)> AddSupplier(SupplierDto supplierDto)
+        public async Task<(SupplierDto?, Mess)> AddSupplier(SupplierDto supplierDto)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace VBDQ_API.Services
             return respone;
         }
 
-        public async Task<(IEnumerable<SupplierDto>, Mess)> GetAllSupplier()
+        public async Task<(IEnumerable<SupplierDto>?, Mess)> GetAllSupplier()
         {
             var supplier = await context.Suppliers.OrderByDescending(s => s.SupplierId).Include(s => s.Products).ToListAsync();
 
@@ -175,7 +175,7 @@ namespace VBDQ_API.Services
 
         }
 
-        public async Task<(SupplierDto, Mess)> GetSupplierById(int id)
+        public async Task<(SupplierDto?, Mess)> GetSupplierById(int id)
         {
             var supplier = await context.Suppliers.Include(s => s.Products).FirstOrDefaultAsync(s => s.SupplierId == id);
 
@@ -206,7 +206,7 @@ namespace VBDQ_API.Services
             return respone;
         }
 
-        public async Task<(SupplierDto, Mess)> UpdatedSupplier(SupplierDto supplierDto, int id)
+        public async Task<(SupplierDto?, Mess)> UpdatedSupplier(SupplierDto supplierDto, int id)
         {
             var supplier = await context.Suppliers.FirstOrDefaultAsync(x => x.SupplierId == id);
 

@@ -21,7 +21,7 @@ namespace VBDQ_API.Services
             this.mapper = mapper;
         }
 
-        public async Task<(Customer, Mess)> AddCustomer(CustomerPP customerPp)
+        public async Task<(Customer?, Mess)> AddCustomer(CustomerPP customerPp)
         {
             try
             {
@@ -46,8 +46,6 @@ namespace VBDQ_API.Services
             {
                 return (null, new Mess { Error = "loi roi", Status = ex.Message });
             }
-
-
         }
 
         public async Task<Mess> DeleteCustomer(int id)
@@ -63,13 +61,13 @@ namespace VBDQ_API.Services
             return new Mess { Error = null, Status = "Xóa thành công khách hàng có Id = 7" };
         }
 
-        public async Task<(IEnumerable<CustomerDto>, Mess)> GetAlLCustomer()
+        public async Task<(IEnumerable<CustomerDto>?, Mess)> GetAlLCustomer()
         {
             try
             {
                 var customer = await context.Customers
                      .Include(c => c.Transactions)
-                     .ThenInclude(C => C.TransactionDetails)
+                     .ThenInclude(c => c!.TransactionDetails)
                      .OrderByDescending(c => c.CustomerId)
                      .ToListAsync();
 
@@ -83,7 +81,7 @@ namespace VBDQ_API.Services
             }
         }
 
-        public async Task<(IEnumerable<Customer>, Mess)> GetAllCustomerByName(string name)
+        public async Task<(IEnumerable<Customer>?, Mess)> GetAllCustomerByName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -91,7 +89,7 @@ namespace VBDQ_API.Services
             }
 
             var customers = await context.Customers
-                        .Where(c => c.CustomerName.ToLower().Contains(name.ToLower()))
+                        .Where(c => c.CustomerName!.ToLower().Contains(name.ToLower()))
                         .ToListAsync();
 
             if (customers == null)
@@ -150,11 +148,11 @@ namespace VBDQ_API.Services
             }
         }
 
-        public async Task<(CustomerDto, Mess)> GetCustomerById(int id)
+        public async Task<(CustomerDto?, Mess)> GetCustomerById(int id)
         {
             var customer = await context.Customers
                 .Include(c => c.Transactions)
-                .ThenInclude(C => C.TransactionDetails)
+                .ThenInclude(c => c!.TransactionDetails)
                 .FirstOrDefaultAsync(c => c.CustomerId == id);
 
             if (customer == null)
@@ -174,14 +172,11 @@ namespace VBDQ_API.Services
                 return (null, new Mess { Error = "ten khong hop le", Status = "ten khong hop le" });
             }
 
-            //var customer = await context.Customers
-            //    .FirstOrDefaultAsync(c => c.CustomerName.ToLower().Contains(name.ToLower()));
-
             // Tách tên thành các từ để tìm kiếm
             var nameParts = name.ToLower().Split(' '); // Chia tên thành từng từ
 
             var customer = await context.Customers
-                .Where(c => nameParts.All(part => c.CustomerName.ToLower().Contains(part))) // Tìm kiếm tất cả các từ
+                .Where(c => nameParts.All(part => c.CustomerName!.ToLower().Contains(part))) // Tìm kiếm tất cả các từ
                 .FirstOrDefaultAsync();
 
             if (customer == null)
@@ -191,7 +186,7 @@ namespace VBDQ_API.Services
             return (customer, new Mess { Error = null, Status = "sucess" });
         }
 
-        public async Task<(Customer, Mess)> UpdateCustomer(CustomerPP customerDto, int id)
+        public async Task<(Customer?, Mess)> UpdateCustomer(CustomerPP customerDto, int id)
         {
             var customer = await context.Customers.FirstOrDefaultAsync(c => c.CustomerId == id);
 

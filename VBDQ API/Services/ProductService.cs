@@ -104,7 +104,7 @@ namespace VBDQ_API.Services
             // Kiểm tra nếu 'name' không có giá trị, lấy tất cả sản phẩm
             var query = string.IsNullOrEmpty(name)
                 ? context.Products
-                : context.Products.Where(x => x.ProductName.ToLower().Contains(name.ToLower()));
+                : context.Products.Where(x => x.ProductName!.ToLower().Contains(name.ToLower()));
 
             int total = await query.CountAsync();
 

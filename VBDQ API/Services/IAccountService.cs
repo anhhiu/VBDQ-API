@@ -6,9 +6,9 @@ namespace VBDQ_API.Services
 {
     public interface IAccountService
     {
-        public Task<(IdentityResult, Mess)> Register(RegisterDto model);
+        public Task<(IdentityResult?, Mess)> Register(RegisterDto model);
         public Task<(string, Mess)> Login(LoginDto model);
-        public Task<(IEnumerable<IdentityRole>, Mess)> GetRoler();
-        public Task<(IEnumerable<IdentityUser>, Mess)> GetUsers();
+        public Task<(IEnumerable<IdentityRole>?, Mess)> GetRoler();
+        public Task<(IEnumerable<IdentityUser>?, Mess)> GetUsers();
     }
 }
